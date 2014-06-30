@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="@{'/public/stylesheets/reset.css'}" rel="stylesheet" type="text/css" />
+<link href="@{'/public/stylesheets/style.css'}" rel="stylesheet" type="text/css" />
+#{get 'moreStyles' /}
+<script src="@{'/public/javascripts/jquery.js'}" type="text/javascript"></script>
+<script src="@{'/public/javascripts/app.js'}" type="text/javascript"></script>
+<script src="@{'/public/javascripts/main.js'}" type="text/javascript"></script>
+<script src="@{'/public/javascripts/public-min.js'}" type="text/javascript"></script>
+<script src="@{'/public/javascripts/DatePicker/WdatePicker.js'}" type="text/javascript"></script>
+<script src="@{'/public/javascripts/entertotab.js'}" type="text/javascript"></script>
+#{get 'moreScripts' /}
+<title>江苏省泰兴经济开发区管理委员会农民存取土地款系统</title>
+</head>
+<body>
+<div class="content_wrapper">
+	<!--header-->
+	#{include '/head.html' /}
+	<!--header end-->
+	<!--menu--> 
+	#{include '/menu.html' /}
+	<!--/menu end--> 
+	<!--main-->
+	#{doLayout /}
+	<!--/main end-->
+	<!--footer--> 
+	#{include 'foot.html' /}
+	<!--footer-->
+</div>
+</body>
+</html>

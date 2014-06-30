@@ -1,0 +1,87 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>挂失记录查询 </span>
+				<span style="font-size: 12px;">姓名：</span>
+				<input id="user_name" type="text" name="user_name" value="${user_name}" style="width: 100px;"/>
+				<span style="font-size: 12px;">存款凭证号：</span>
+				<input id="number" type="text" name="number" value="${id}" style="width: 100px;"/>
+				<a id="chaxun" href="javascript:;" class="save_btn"><em>查询</em></a>
+			</div>
+			<div class="content">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="70">存款凭证号</th>
+							<th width="120">村组</th>
+							<th width="70">姓名</th>
+							<th width="70">存款金额</th>
+							<th width="70">利息标准</th>
+							<th width="70">存款时间</th>
+							<th width="70">到期时间</th>
+							<th width="110">挂失时间</th>
+							<th width="70">状态</th>
+							<th width="120">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:gsds, as:'gsd'}
+						<tr id="list_data_${gsd.id}">
+							<td>${gsd.ckd_id}</td>
+							<td>${gsd.user_group}</td>
+							<td>${gsd.user_name}</td>
+							<td>${gsd.money_basic?.format(',000')}</td>
+							<td>${gsd.money_rate?.format('.0')}%</td>
+							<td>${gsd.start_date?.format("yyyy-MM-dd")}</td>
+							<td>${gsd.end_date == null ? "-" : gsd.end_date?.format("yyyy-MM-dd")}</td>
+							<td>${gsd.created_at?.format("yyyy-MM-dd HH:mm:ss")}</td>
+							<td>${gsd.getGsdStatus()}</td>
+							<td>
+								<a href="@{loss.LossQuery.detail(gsd.id)}">查看</a>
+								#{if gsd.status == 0}
+								<a id="gsd_cancel" href="javascript:void(0);" onclick="gsd_cancel(${gsd.id})" data-id="${gsd.id}">取消挂失</a>
+								<a id="gsd_new" href="javascript:void(0);" onclick="gsd_new(${gsd.id})" data-id="${gsd.id}">补单</a>
+								#{/if}
+							</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	//查询
+	$("#chaxun").click(function(){
+		var id = $('#number').val();
+		var user_name = $('#user_name').val();
+		window.location = '@{loss.LossQuery.chaxun}'+'?id='+$.trim(id)+'&user_name='+encodeURI($.trim(user_name));
+	})
+})
+function gsd_cancel(id){
+	$.post('@{loss.LossQuery.cancel}',{id:id},function(msg){
+		if (msg.error == 1) {
+			APP.tips('success','取消挂失成功！');
+			setTimeout(function(){window.location.reload();},500);
+		} else {
+			APP.tips('error',msg.error);
+		}
+	})
+}
+//补单
+function gsd_new(id){
+	$.post('@{loss.LossQuery.gsd_new}',{id:id},function(msg){
+		if (msg.error == 1) {
+			APP.tips('success','补单成功，请至存款单管理中审核！');
+			setTimeout(function(){window.location.reload();},2000);
+		} else {
+			APP.tips('error',msg.error);
+		}
+	})
+}
+</script>

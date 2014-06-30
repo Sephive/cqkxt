@@ -1,0 +1,271 @@
+<link href="@{'/public/jquery-ui-1.10.4.custom/css/ui-lightness/jquery-ui-1.10.4.custom.min.css'}" rel="stylesheet">
+<script type="text/javascript" src="@{'/public/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js'}"></script>
+<style>
+td {padding-top: 5px;}
+</style>
+<style>
+.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+  }
+  /* IE 6 doesn't support max-height
+   * we use height instead, but this forces the menu to always be this tall
+   */
+  * html .ui-autocomplete {
+    height: 100px;
+  }
+.custom-combobox {
+	position: relative;
+	display: inline-block;
+	width: 200px;
+}
+.custom-combobox a {
+	left: 200px;
+}
+.custom-combobox-toggle {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	margin-left: -1px;
+	padding: 0;
+	/* support: IE7 */
+	*height: 1.7em;
+	*top: 0.1em;
+}
+.custom-combobox-input {
+	margin: 0;
+	padding: 0.3em;
+	width: 200px;
+}
+</style>
+<script>
+(function( $ ) {
+	$.widget( "custom.combobox", {
+		_create: function() {
+			this.wrapper = $( "<span>" )
+				.addClass( "custom-combobox" )
+				.insertAfter( this.element );
+
+			this.element.hide();
+			this._createAutocomplete();
+			this._createShowAllButton();
+		},
+
+		_createAutocomplete: function() {
+			var selected = this.element.children( ":selected" ),
+				value = selected.val() ? selected.text() : "";
+
+			this.input = $( "<input>" )
+				.appendTo( this.wrapper )
+				.val( value )
+				.attr( "title", "" )
+				.addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+				.autocomplete({
+					delay: 0,
+					minLength: 0,
+					source: $.proxy( this, "_source" )
+				})
+				.tooltip({
+					tooltipClass: "ui-state-highlight"
+				});
+
+			this._on( this.input, {
+				autocompleteselect: function( event, ui ) {
+					ui.item.option.selected = true;
+					this._trigger( "select", event, {
+						item: ui.item.option
+					});
+				},
+
+				autocompletechange: "_removeIfInvalid"
+			});
+		},
+
+		_createShowAllButton: function() {
+			var input = this.input,
+				wasOpen = false;
+
+			$( "<a>" )
+				.attr( "tabIndex", -1 )
+				.attr( "title", "" )
+				.tooltip()
+				.appendTo( this.wrapper )
+				.button({
+					icons: {
+						primary: "ui-icon-triangle-1-s"
+					},
+					text: false
+				})
+				.removeClass( "ui-corner-all" )
+				.addClass( "custom-combobox-toggle ui-corner-right" )
+				.mousedown(function() {
+					wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+				})
+				.click(function() {
+					input.focus();
+
+					// Close if already visible
+					if ( wasOpen ) {
+						return;
+					}
+
+					// Pass empty string as value to search for, displaying all results
+					input.autocomplete( "search", "" );
+				});
+		},
+
+		_source: function( request, response ) {
+			var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+			response( this.element.children( "option" ).map(function() {
+				var text = $( this ).text();
+				if ( this.value && ( !request.term || matcher.test(text) ) )
+					return {
+						label: text,
+						value: text,
+						option: this
+					};
+			}) );
+		},
+
+		_removeIfInvalid: function( event, ui ) {
+
+			// Selected an item, nothing to do
+			if ( ui.item ) {
+				return;
+			}
+
+			// Search for a match (case-insensitive)
+			var value = this.input.val(),
+				valueLowerCase = value.toLowerCase(),
+				valid = false;
+			this.element.children( "option" ).each(function() {
+				if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+					this.selected = valid = true;
+					return false;
+				}
+			});
+
+			// Found a match, nothing to do
+			if ( valid ) {
+				return;
+			}
+
+			// Remove invalid value
+			this.input
+				.val( "" )
+				.attr( "title", value + " didn't match any item" )
+				.tooltip( "open" );
+			this.element.val( "" );
+			this._delay(function() {
+				this.input.tooltip( "close" ).attr( "title", "" );
+			}, 2500 );
+			this.input.data( "ui-autocomplete" ).term = "";
+		},
+
+		_destroy: function() {
+			this.wrapper.remove();
+			this.element.show();
+		}
+	});
+})( jQuery );
+
+$(function() {
+	$( "#group_all" ).combobox();
+});
+</script>
+<div style="margin: 20px; text-align: center;">
+	<table cellspacing="30" cellpadding="30">
+		<tr>
+			<td>选择村组：</td>
+			<td>
+				<div id="auto-3" style="text-align: left;">
+					<select id="group_all">
+						<option value=""></option>
+						#{list items:groups,as:'group'}
+						<option value="${group.number + '/' + group.name}">${group.number + '/' + group.name}</option>
+						#{/list}
+					</select>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>存款人名称：</td>
+			<td>
+				<input id="name" type="text" name="name" value="" />
+			</td>
+		</tr>
+		<tr>
+			<td>存款人身份证：</td>
+			<td><input id="user_id_card" type="text" name="user_id_card" value="" maxlength="18" /></td>
+		</tr>
+		<tr>
+			<td>金算盘编号：</td>
+			<td><input id="jsp_number" readonly="readonly" type="text" name="jsp_number" value="" /></td>
+		</tr>
+		<tr>
+			<td>金算盘名称：</td>
+			<td><input id="jsp_name" type="text" readonly="readonly" name="jsp_name" value="" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<a id="submit" href="javascript:;" class="save_btn"><em>确定</em></a>
+				<a id="reset" href="javascript:;" onclick="APP.close(this)" class="clear_btn"><em>取消</em></a>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('#submit').click(function(){
+			var group_all = $('#auto-3 :input').val();
+			var name = $('#name').val();
+			var user_id_card = $('#user_id_card').val();
+			var jsp_number = $('#jsp_number').val();
+			var jsp_name = $('#jsp_name').val();
+			if (group_all == '') {
+				APP.tips('warn','村组不能为空');
+				return false;
+			}
+			if (name == '') {
+				APP.tips('warn','存款人名称不能为空');
+				return false;
+			}
+			if (user_id_card == '') {
+				APP.tips('warn','存款人身份证不能为空');
+				return false;
+			}
+			if (jsp_number == '') {
+				APP.tips('warn','金算盘编号不能为空');
+				return false;
+			}
+			if (jsp_name == '') {
+				APP.tips('warn','金算盘名称不能为空');
+				return false;
+			}
+			var group_number = group_all.split('/')[0];
+			var group_name = group_all.split('/')[1];
+			var data = {group_number:group_number,group_name:group_name,name:name,user_id_card:user_id_card,jsp_number:jsp_number,jsp_name:jsp_name};
+			$.post('@{system.CustomerManage.saveCustomer}',data, function(msg){
+				if (msg.error == 1) {
+					APP.tips('success','添加成功！');
+					setTimeout(function(){window.location.reload();},500);
+				} else {
+					APP.tips('error',msg.error);
+				}
+			})
+		})
+		$('#auto-3 :input').live('blur', function(){
+			var group_all = $(this).val();
+			var group_number = group_all.split('/')[0];
+			var group_name = group_all.split('/')[1];
+			$.get('@{system.CustomerManage.findNextNumber}',{groupNumber:group_number},function(msg){
+				$('#jsp_number').val(msg.max_number);
+			})
+		})
+		$('#name').keyup(function(){
+			$('#jsp_name').val($(this).val());
+		})
+	})
+</script>

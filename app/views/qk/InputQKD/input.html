@@ -1,0 +1,480 @@
+#{extends '/layout.html' /}
+<!--content-->
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header"> <span>取款</span> </div>
+			<div class="content">
+				<form action="@{qk.InputQKD.save}" method="post" enctype="multipart/form-data" name="form1">
+					<input name="action" type="hidden" value="add" />
+					<table width="100%" border="1" bordercolor="#dfdfdf" cellpadding="0" cellspacing="0" class="table_add">
+						<tr>
+							<td width="101" height="25" class="lefttd" colspan="4">查询存款信息</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款凭证编号：</td>
+							<td width="40%" height="30">
+								<input id="ckd_id" name="qkd.ckd_id" type="text" class="input" value="${ckd?.id}">
+							</td>
+							<td width="101" height="30" class="lefttd">利率：</td>
+							<td height="30"><span id="ckd_rate">${ckd?.money_rate?.format(".0")}%</span></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">姓名：</td>
+							<td height="30">
+								<span id="ckd_user_name"><input id="user_name" type="text" readonly="readonly" name="qkd.user_name" value="${ckd?.user_name}" /></span>
+								<input type="hidden" name="qkd.user_number" value="${ckd?.user_number}" />
+								<input type="hidden" name="qkd.group_number" value="${ckd?.group_number}" />
+								<input type="hidden" name="qkd.group_name" value="${ckd?.group_name}" />
+							</td>
+							<td width="101" height="30" class="lefttd">身份证号码：</td>
+							<td height="30">
+								<span id="ckd_user_id_card"><input type="text" readonly="readonly" name="qkd.user_id_card" value="${ckd?.user_id_card}" /></span>
+							</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">本金：</td>
+							<td height="30">
+								<span id="ckd_basic_money">${ckd?.money_basic == null ? '' : ckd?.money_basic?.format(',000')}</span>
+								<input type="hidden" name="qkd.money_basic" value="${ckd?.money_basic}" />
+							</td>
+							<td width="101" height="30" class="lefttd">存款时间：</td>
+							<td height="30"><span id="ckd_start_date">${ckd?.start_date?.format('yyyy-MM-dd')}</span></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款种类：</td>
+							<td height="30"><span id="ckd_money_type">${ckd?.type?.name}</span></td>
+							<td width="101" height="30" class="lefttd">到期时间：</td>
+							<td height="30"><span id="ckd_end_date">${ckd?.end_date?.format('yyyy-MM-dd')}</span></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">备注：</td>
+							<td height="30" colspan="3"><span style="color: red; font-weight: bold;">${ckd?.remark}</span></td>
+						</tr>
+						#{if ckd_query_error_tips != null && !"".equals(ckd_query_error_tips)}
+						<tr>
+							<td width="101" height="25" class="lefttd" colspan="4">
+								<span style="color: red; padding-left: 20px;">${ckd_query_error_tips}</span>
+							</td>
+						</tr>
+						#{/if}
+						#{if ckd != null && ckd.status == 1}
+						<tr>
+							<td width="101" height="25" class="lefttd" colspan="4">填写取款信息</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">取款类型：</td>
+							<td height="30">
+								<select name="qkd.out_type" id="money_type" style="width: 262px;">
+									#{if ckd_status == 32 || ckd_status == 52}
+									<option value="1" #{if out_type==1}selected="selected"#{/if}>正常取款-只取利息</option>
+									#{/if}
+									#{if ckd_status == 0 || ckd_status == 12 || ckd_status == 33 || ckd_status == 53}
+									<option value="2" #{if out_type==2}selected="selected"#{/if}>正常取款-全部提取</option>
+									#{/if}
+									#{if ckd_status == 11 || ckd_status == 31 || ckd_status == 32 || ckd_status == 51 || ckd_status == 52}
+									<option value="3" #{if out_type==3}selected="selected"#{/if}>完全提前取款</option>
+									#{/if}
+									#{if ckd_status == 11 || ckd_status == 31 || ckd_status == 32 || ckd_status == 51 || ckd_status == 52}
+									<option value="4" #{if out_type==4}selected="selected"#{/if}>部分提前取款</option>
+									#{/if}
+									#{if ckd_status == 0 || ckd_status == 12 || ckd_status == 33 || ckd_status == 53}
+									<option value="5" #{if out_type==5}selected="selected"#{/if}>正常取款-本金转存</option>
+									<option value="6" #{if out_type==6}selected="selected"#{/if}>正常取款-本息转存</option>
+									#{/if}
+								</select>
+								<span id="qk_tips" style="color: red; padding-left: 20px;"></span>
+							</td>
+							<td width="150" height="30" class="lefttd">代理人姓名：</td>
+							<td height="30"><input name="qkd.agent_name" type="text" class="input" ignore-tab="true"></td>
+						</tr>
+						
+						<tr>
+							<td width="101" height="30" class="lefttd">取款时间：</td>
+							<td height="30"><input id="out_time" name="qkd.out_time" type="text" class="input" value="${out_time?.format('yyyy-MM-dd')}" onchange="out_time_change()" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+							<td width="91" class="lefttd">代理人身份证：</td>
+							<td height="30"><input name="qkd.agent_id_card" type="text" class="input" ignore-tab="true"></td>
+						</tr>
+						
+						<!-- ***********活期****************** -->
+						#{if ckd_status == 0}
+						<tr>
+							<td width="101" height="30" class="lefttd">取款金额：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" readonly="readonly" type="text" class="input" value="${ckd.money_basic?.format('0')}"></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj?.format('0')}"></td>
+						</tr>
+						#{/if}
+						<!-- ***********活期******end********* -->
+						
+						<!-- ***********一年定期-已到期-全部提取****************** -->
+						#{if ckd_status == 12}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" readonly="readonly" type="text" class="input" value="${ckd.money_basic?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********一年定期-已到期-全部提取******end********* -->
+						
+						<!-- ***********一年定期-全部提前****************** -->
+						#{if ckd_status == 11 && (out_type == 3 || out_type == 0)}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" readonly="readonly" type="text" class="input" value="${ckd?.money_basic?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********一年定期-全部提前******end********* -->
+						
+						<!-- ***********一年定期-部分提前****************** -->
+						#{if ckd_status == 11 && out_type == 4}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" type="text" class="input" value="${out_bj == 0 ? '' : out_bj?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">剩余本金：</td>
+							<td height="30"><input id="out_sy" name="qkd.out_sy" type="text" readonly="readonly" class="input" value="${out_sy == 0 ? '' : out_sy?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx == 0 ? '' : total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj == 0 ? '' : out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********一年定期-部分提前******end********* -->
+						
+						<!-- ***********三年定期-正常取款-只取利息****************** -->
+						#{if ckd_status == 32 && out_type == 1}
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">可取利息：</td>
+							<td height="30" style="font-size: 16px; color: green;">${(total_lx - out_total_lx)?.format(',000')}</td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" type="text" readonly="readonly" class="input" value="${(total_lx - out_total_lx)?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********三年定期-正常取款-只取利息******end********* -->
+						
+						<!-- ***********三年定期-正常取款-全部提取****************** -->
+						#{if ckd_status == 33}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" readonly="readonly" type="text" class="input" value="${ckd.money_basic?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********三年定期-正常取款-全部提取******end********* -->
+						
+						<!-- ***********三年定期-全部提前****************** -->
+						#{if (ckd_status == 31 || ckd_status == 32) && out_type == 3}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" readonly="readonly" type="text" class="input" value="${ckd.money_basic?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********三年定期-全部提前******end********* -->
+						
+						<!-- ***********三年定期-部分提前****************** -->
+						#{if (ckd_status == 31 || ckd_status == 32) && out_type == 4}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" type="text" class="input" value="${out_bj == 0 ? '' : out_bj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">剩余本金：</td>
+							<td height="30"><input id="out_sy" name="qkd.out_sy" type="text" readonly="readonly" class="input" value="${out_sy == 0 ? '' : out_sy?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx == 0 ? '' : total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj==0?'':out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********三年定期-部分提前******end********* -->
+						
+						<!-- ***********五年定期-正常取款-只取利息****************** -->
+						#{if ckd_status == 52 && out_type == 1}
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">可取利息：</td>
+							<td height="30" style="font-size: 16px; color: green;">${(total_lx - out_total_lx)?.format(',000')}</td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${(total_lx - out_total_lx)?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********五年定期-正常取款-只取利息******end********* -->
+						
+						<!-- ***********五年定期-正常取款-全部提取****************** -->
+						#{if ckd_status == 53}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" readonly="readonly" type="text" class="input" value="${ckd.money_basic?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********五年定期-正常取款-全部提取******end********* -->
+						
+						<!-- ***********五年定期-全部提前****************** -->
+						#{if (ckd_status == 51 || ckd_status == 52) && out_type == 3}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" readonly="readonly" type="text" class="input" value="${ckd.money_basic?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********五年定期-全部提前******end********* -->
+						
+						<!-- ***********五年定期-部分提前****************** -->
+						#{if (ckd_status == 51 || ckd_status == 52) && out_type == 4}
+						<tr>
+							<td width="101" height="30" class="lefttd">取本金数：</td>
+							<td height="30"><input id="out_bj" name="qkd.out_bj" type="text" class="input" value="${out_bj == 0 ? '' : out_bj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">剩余本金：</td>
+							<td height="30"><input id="out_sy" name="qkd.out_sy" type="text" readonly="readonly" class="input" value="${out_sy == 0 ? '' : out_sy?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利息总计：</td>
+							<td height="30"><input id="total_lx" name="qkd.total_lx" readonly="readonly" type="text" class="input" value="${total_lx == 0 ? '' : total_lx?.format('0')}" /></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">已取利息：</td>
+							<td height="30"><input id="out_total_lx" name="qkd.out_total_lx" readonly="readonly" type="text" class="input" value="${out_total_lx == 0 ? 0 : out_total_lx?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td width="101" class="lefttd">本次取款合计：</td>
+							<td height="30"><input id="out_hj" name="qkd.out_hj" readonly="readonly" type="text" class="input" value="${out_hj==0?'':out_hj?.format('0')}"></td>
+							<td width="101" height="30" class="lefttd"></td>
+							<td></td>
+						</tr>
+						#{/if}
+						<!-- ***********五年定期-部分提前******end********* -->
+						
+						<!-- ***********公共部分****************** -->
+						#{if ckd_status == 0 || (ckd_status == 11 && out_type == 3) || (ckd_status == 11 && out_type == 4) || ckd_status == 12 || ckd_status == 31 || ckd_status == 32 || ckd_status == 33 || ckd_status == 51 || ckd_status == 52 || ckd_status == 53}
+						<tr>
+							<td class="lefttd" colspan="4" height="50">
+								<a id="submit_btn" href="javascript:;" class="save_btn"><em>确定</em></a>
+								<a id="reset_btn" href="javascript:;" class="clear_btn"><em>取消</em></a>
+							</td>
+						</tr>
+						#{/if}
+						<!-- ***********公共部分******end******** -->
+					#{/if}
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	function out_time_change() {
+		window.location = '/qk.InputQKD/input?ckd_id=' + ${ckd?.id} + '&out_time=' + $('#out_time').val() + '&out_type=' + $('#money_type').val();
+	}
+	$(function(){
+		$('#user_name').focus();
+		$("#submit_btn").click(function(){
+			document.form1.submit();		
+		})
+		$("#reset_btn").click(function(){
+			window.location='/';
+		})
+		//查存款凭证信息
+		$('#ckd_id').blur(function(){
+			var ckd_id = $(this).val();
+			if (ckd_id != '') {
+				window.location = '/qk.InputQKD/input?ckd_id=' + ckd_id;
+			}
+		})
+		$('#money_type').change(function(){
+			window.location = '/qk.InputQKD/input?ckd_id=' + ${ckd?.id} + '&out_type=' + $('#money_type').val() + '&out_time=' + $('#out_time').val();
+		})
+		#{if out_type == 4}
+		$('#out_bj').blur(function(){
+			window.location = '/qk.InputQKD/input?ckd_id=' + ${ckd?.id} + '&out_type=' + $('#money_type').val() + '&out_bj=' + $('#out_bj').val() + '&out_time=' + $('#out_time').val();
+		})
+		#{/if}
+	})
+	</script>
+</div>

@@ -1,0 +1,62 @@
+#{extends '/layout.html' /}
+<style>
+th {border-width: thin; border-style: solid; border-color: #CCCCCC; text-align: center;}
+</style>
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>查询混合台账 </span>
+				<span style="font-size: 12px;">存款凭证号：</span>
+				<input id="ckd_id" type="text" name="ckd_id" value="${ckdId}" style="width: 100px;"/>
+				<span style="font-size: 12px;">姓名：</span>
+				<input id="userName" type="text" name="userName" value="${userName}" style="width: 100px;"/>
+				<a id="chaxun" href="javascript:;" class="save_btn"><em>查询</em></a>
+			</div>
+			<div class="content">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+						    <th width="70" rowspan="2">存款凭证号</th>
+						    <th width="70" rowspan="2">姓名</th>
+						    <th width="70" rowspan="2">身份证</th>
+						    <th width="70" colspan="4" style="text-align: center;">存款</th>
+						    <th width="70" colspan="4" style="text-align: center;">取款</th>
+						    <th width="70" rowspan="2">备注</th>
+						</tr>
+						<tr>
+						    <th width="70">本金</th>
+						    <th width="70">存款时间</th>
+						    <th width="70">到期时间</th>
+						    <th width="70">存款种类</th>
+						    <th width="70">取款时间</th>
+						    <th width="70">取款利息</th>
+						    <th width="70">取款本金</th>
+						    <th width="70">取款总额</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:cqs, as:'cq'}
+						<tr>
+							#{list items:cq, as:'obj'}
+							<td>${obj}</td>
+							#{/list}
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	//查询
+	$("#chaxun").click(function(){
+		var ckdId = $('#ckd_id').val();
+		var userName = $('#userName').val();
+		window.location = '/query.Report/hhtz?pageAction=query&ckdId=' + $.trim(ckdId) + "&userName=" + encodeURI($.trim(userName));
+	})
+})
+</script>

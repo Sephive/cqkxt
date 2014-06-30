@@ -1,0 +1,295 @@
+#{extends '/layout.html' /}
+<!--//*************************************选择框******************************************-->
+<link href="@{'/public/jquery-ui-1.10.4.custom/css/ui-lightness/jquery-ui-1.10.4.custom.min.css'}" rel="stylesheet">
+<script type="text/javascript" src="@{'/public/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js'}"></script>
+<style>
+.header span {padding: 0;}
+.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+  }
+  /* IE 6 doesn't support max-height
+   * we use height instead, but this forces the menu to always be this tall
+   */
+  * html .ui-autocomplete {
+    height: 100px;
+  }
+.custom-combobox {
+	position: relative;
+	display: inline-block;
+	width: 170px;
+}
+.custom-combobox a {
+	left: 170px;
+}
+.custom-combobox-toggle {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	margin-left: -1px;
+	padding: 0;
+	/* support: IE7 */
+	*height: 1.7em;
+	*top: 0.1em;
+}
+.custom-combobox-input {
+	margin: 0;
+	padding: 0.3em;
+	width: 161px;
+	font-size: 12px;
+}
+</style>
+<script>
+(function( $ ) {
+	$.widget( "custom.combobox", {
+		_create: function() {
+			this.wrapper = $( "<span>" )
+				.addClass( "custom-combobox" )
+				.insertAfter( this.element );
+
+			this.element.hide();
+			this._createAutocomplete();
+			this._createShowAllButton();
+		},
+
+		_createAutocomplete: function() {
+			var selected = this.element.children( ":selected" ),
+				value = selected.val() ? selected.text() : "";
+
+			this.input = $( "<input>" )
+				.appendTo( this.wrapper )
+				.val( value )
+				.attr( "title", "" )
+				.addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+				.autocomplete({
+					delay: 0,
+					minLength: 0,
+					source: $.proxy( this, "_source" )
+				})
+				.tooltip({
+					tooltipClass: "ui-state-highlight"
+				});
+
+			this._on( this.input, {
+				autocompleteselect: function( event, ui ) {
+					ui.item.option.selected = true;
+					this._trigger( "select", event, {
+						item: ui.item.option
+					});
+				},
+
+				autocompletechange: "_removeIfInvalid"
+			});
+		},
+
+		_createShowAllButton: function() {
+			var input = this.input,
+				wasOpen = false;
+
+			$( "<a>" )
+				.attr( "tabIndex", -1 )
+				.attr( "title", "" )
+				.tooltip()
+				.appendTo( this.wrapper )
+				.button({
+					icons: {
+						primary: "ui-icon-triangle-1-s"
+					},
+					text: false
+				})
+				.removeClass( "ui-corner-all" )
+				.addClass( "custom-combobox-toggle ui-corner-right" )
+				.mousedown(function() {
+					wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+				})
+				.click(function() {
+					input.focus();
+
+					// Close if already visible
+					if ( wasOpen ) {
+						return;
+					}
+
+					// Pass empty string as value to search for, displaying all results
+					input.autocomplete( "search", "" );
+				});
+		},
+
+		_source: function( request, response ) {
+			var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+			response( this.element.children( "option" ).map(function() {
+				var text = $( this ).text();
+				if ( this.value && ( !request.term || matcher.test(text) ) )
+					return {
+						label: text,
+						value: text,
+						option: this
+					};
+			}) );
+		},
+
+		_removeIfInvalid: function( event, ui ) {
+
+			// Selected an item, nothing to do
+			if ( ui.item ) {
+				return;
+			}
+
+			// Search for a match (case-insensitive)
+			var value = this.input.val(),
+				valueLowerCase = value.toLowerCase(),
+				valid = false;
+			this.element.children( "option" ).each(function() {
+				if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+					this.selected = valid = true;
+					return false;
+				}
+			});
+
+			// Found a match, nothing to do
+			if ( valid ) {
+				return;
+			}
+
+			// Remove invalid value
+			this.input
+				.val( "" )
+				.attr( "title", value + " didn't match any item" )
+				.tooltip( "open" );
+			this.element.val( "" );
+			this._delay(function() {
+				this.input.tooltip( "close" ).attr( "title", "" );
+			}, 2500 );
+			this.input.data( "ui-autocomplete" ).term = "";
+		},
+
+		_destroy: function() {
+			this.wrapper.remove();
+			this.element.show();
+		}
+	});
+})( jQuery );
+
+$(function() {
+	$( "#group_all" ).combobox();
+	$( "#customer_all" ).combobox();
+});
+</script>
+<!--//*************************************选择框end****************************-->
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<div style="float: left;"><span style="margin-left: 5px; font-size: 14px;">查询存款台账 </span></div>
+			</div>
+			<div class="content">
+				<div style="height: 35px;">
+					<div id="auto-1" style="float: left;">
+						<span style="font-size: 12px;">村组：</span>
+						<select id="group_all" ignore-tab="true" style="font-size: 12px;">
+							<option value=""></option>
+							#{list items:groups, as:'group'}
+							<option value="${group.number + '/' + group.name}" #{if groupNumber?.equals(group.number)}selected="selected"#{/if}>${group.number + '/' + group.name}</option>
+							#{/list}
+						</select>
+					</div>
+					<div id="auto-2" style="float: left; margin-left: 45px;">
+						<span style="font-size: 12px;">存款人：</span>
+						<select id="customer_all" ignore-tab="true">
+							<option value=""></option>
+							#{list items:customers, as:'customer'}
+							<option value="${customer.number + '/' + customer.name + '/' + customer.user_id_card}" #{if userNumber?.equals(customer.number)}selected="selected"#{/if}>${customer.number + '/' + customer.name + '/' + customer.user_id_card}</option>
+							#{/list}
+						</select>
+					</div>
+					<div style="float: left; margin-left: 45px;">
+						<span style="font-size: 12px;">存款日期：</span>
+						<input id="start_date" type="text" name="start_date" readonly="readonly" value="${startDate?.format('yyyy-MM-dd')}" style="width: 90px;" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+						<span style="font-size: 12px; padding-left:0px;">至</span>
+						<input id="end_date" type="text" name="end_date" readonly="readonly" value="${endDate?.format('yyyy-MM-dd')}" style="width: 90px;" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'start_date\')}'})"/>
+						<a id="chaxun" href="javascript:;" class="save_btn"><em>查询</em></a>
+						<a id="excel" href="javascript:;" class="save_btn"><em>导出EXCEL</em></a>
+					</div>
+				</div>
+				<div style="margin-bottom: 10px;">
+					查询结果总计：<span style="font-size: 20px;">${total?.formatCurrency('CNY').raw()}</span>
+				</div>
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="70" style="text-align: center;">存款凭证编号</th>
+							<th width="100" style="padding-left: 30px;">村组</th>
+							<th width="70">姓名</th>
+							<th width="80">存款种类</th>
+							<th width="40">利率</th>
+							<th width="80" style="text-align: right;">本金(元)</th>
+							<th width="80" style="text-align: center;">存款时间</th>
+							<th width="80" style="text-align: center;">到期时间</th>
+							<th width="70" style="text-align: center;">状态</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:ckds, as:'ckd'}
+						<tr id="list_data_${ckd.id}">
+							<td style="text-align: center;">${ckd.id}</td>
+							<td>${ckd.group_name}</td>
+							<td>${ckd.user_name}</td>
+							<td>${ckd.type?.name}</td>
+							<td>${ckd.money_rate?.format(".0")}%</td>
+							<td style="text-align: right;">${ckd.money_basic?.formatCurrency('CNY').raw()}</td>
+							<td style="text-align: center;">${ckd.start_date?.format("yyyy-MM-dd")}</td>
+							<td style="text-align: center;">${ckd.end_date == null ? "-" : ckd.end_date?.format("yyyy-MM-dd")}</td>
+							<td style="text-align: center;">${ckd.getCKDStatus()}</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	var currentGroup = '${currentGroup == null ? "" : (currentGroup.number + "/" + currentGroup.name)}';
+	$('#chaxun').click(function(){
+		var groupNumber = $('#auto-1 :input').val();
+		var userNumber = $('#auto-2 :input').val();
+		var startDate = $('#start_date').val();
+		var endDate = $('#end_date').val();
+		if (groupNumber != '') {
+			groupNumber = groupNumber.split('/')[0];
+		}
+		if (userNumber != '') {
+			userNumber = userNumber.split('/')[0];
+		}
+		window.location = '/query.Report/cktz?pageAction=query&groupNumber='+groupNumber+'&userNumber='+userNumber+'&startDate='+startDate+'&endDate='+endDate;
+	})
+	$('#excel').click(function(){
+		var groupNumber = $('#auto-1 :input').val();
+		var userNumber = $('#auto-2 :input').val();
+		var startDate = $('#start_date').val();
+		var endDate = $('#end_date').val();
+		if (groupNumber != '') {
+			groupNumber = groupNumber.split('/')[0];
+		}
+		if (userNumber != '') {
+			userNumber = userNumber.split('/')[0];
+		}
+		window.location = '/query.Report/excel_cktz?groupNumber='+groupNumber+'&userNumber='+userNumber+'&startDate='+startDate+'&endDate='+endDate;
+	})
+	//选择框
+	$('#auto-1 :input').live('blur', function(){
+		var groupNumber = $(this).val();
+		if (groupNumber != currentGroup) {
+			$('#auto-2 :input').val('');
+			var groupNumber = groupNumber.split('/')[0];
+			var startDate = $('#start_date').val();
+			var endDate = $('#end_date').val();
+			window.location='/query.Report/cktz?groupNumber='+groupNumber+'&startDate='+startDate+'&endDate='+endDate;
+		}
+	})
+})
+</script>

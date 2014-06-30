@@ -1,0 +1,133 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>取款单管理 </span>
+				<span style="font-size: 12px;">姓名：</span>
+				<input id="user_name" type="text" name="user_name" value="${user_name}" style="width: 100px;"/>
+				<span style="font-size: 12px;">存款凭证编号：</span>
+				<input id="number" type="text" name="number" value="${id}" style="width: 100px;"/>
+				<a id="chaxun" href="javascript:;" class="save_btn"><em>查询</em></a>
+				<a href="@{qk.ManageQKD.list}" class="save_btn"><em>全部</em></a>
+				*{
+				<span style="font-size: 14px;">状态：</span>
+				<select id="bigsort" style="width: 160px;">
+					<option value=""  #{if status == null || "".equals(status)}selected="selected"#{/if}>全部</option>
+					<option value="0" #{if "0".equals(status)}selected="selected"#{/if}>待审核</option>
+					<option value="1" #{if "1".equals(status)}selected="selected"#{/if}>待复核</option>
+					<option value="2" #{if "2".equals(status)}selected="selected"#{/if}>已审批</option>
+				</select>
+				<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+				<a id="approve1" href="javascript:;" class="clear_btn"><em>审核</em></a>
+				<a id="approve2" href="javascript:;" class="clear_btn"><em>复核</em></a>
+				}*
+			</div>
+			<div class="content">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="80">存款凭证编号</th>
+							<th width="160">村组</th>
+							<th width="140">存款人</th>
+							<th width="100">取款类型</th>
+							<th width="80">取款合计(元)</th>
+							<th width="120">取款日期</th>
+							<th width="120">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:qkds, as:'qkd'}
+						<tr id="list_data_${qkd.id}">
+							<td>${qkd.ckd_id}</td>
+							<td>${qkd.ckd?.group_number + '/' + qkd.ckd?.group_name}</td>
+							<td>${qkd.user_number + '/' + qkd.user_name}</td>
+							<td>${qkd.getOutType()}</td>
+							<td>${qkd.out_hj?.format(',000')}</td>
+							<td>${qkd.out_time?.format("yyyy-MM-dd")}</td>
+							<td>
+								<a href="@{qk.ManageQKD.detail(qkd.id)}">查看</a>
+								<a href="javascript:openwindow('@{Print.qkd(qkd.id)}','凭证打印',700,450,'no','no','no','no','no','no');">打印凭证</a>
+								#{if canCallback && qkd.canRollback()}
+								<a id="roll_back" href="javascript:void(0);" onclick="roll_back(${qkd.id})" data-id="${qkd.id}">回滚</a>
+								#{/if}
+							</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$("#bigsort").change(function(){
+		var status = $("#bigsort").val();
+		window.location = '@{qk.ManageQKD.list}' + '?status=' + status;
+	})
+	//查询
+	$("#chaxun").click(function(){
+		var id = $('#number').val();
+		var user_name = $('#user_name').val();
+		if (id == '' && user_name == '') {
+			msgTips('warn','请输入姓名或取款凭证编号');
+			return false;
+		}
+		window.location = '@{qk.ManageQKD.chaxun}'+'?id='+id+'&user_name='+encodeURI(user_name);
+	})
+	//审核
+	$("#approve1").click(function(){
+		var ids = getCheckedIds();
+		if (ids == '') {
+			msgTips('warn','未选中');
+			return false;
+		}
+		$.post('@{qk.ManageQKD.approve1}',{ids:ids},function(msg){
+			if (msg.error == 1) {
+				msgTips('success','审核成功！');
+			} else {
+				msgTips('error',msg.error);
+			}
+			window.location.reload();
+		})
+	})
+	//复核
+	$("#approve2").click(function(){
+		var ids = getCheckedIds();
+		if (ids == '') {
+			msgTips('warn','未选中');
+			return false;
+		}
+		$.post('@{qk.ManageQKD.approve2}',{ids:ids},function(msg){
+			if (msg.error == 1) {
+				msgTips('success','复核成功！');
+			} else {
+				msgTips('error',msg.error);
+			}
+			window.location.reload();
+		})
+	})
+	function getCheckedIds() {
+		var ids = '';
+		$('input:checkbox[name=list_data]:checked').each(function(i){
+			ids += $(this).val() + ',';
+		})
+		if (ids != '') {
+			ids = ids.substring(0,ids.length -1);
+		}
+		return ids;
+	}
+})
+function roll_back(id){
+	$.post('@{qk.ManageQKD.rollback}',{id:id},function(msg){
+		if (msg.error == 1) {
+			APP.tips('success','回滚成功！');
+			setTimeout(function(){window.location.reload();},500);
+		} else {
+			APP.tips('error',msg.error);
+		}
+	})
+}
+</script>

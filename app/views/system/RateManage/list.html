@@ -1,0 +1,60 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>利率管理 </span>
+				<span><a id="add_rate" href="javascript:;" class="clear_btn"><em>新增</em></a></span>
+			</div>
+			<div class="content">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="40">序号</th>
+							<th width="70">存款种类</th>
+							<th width="70">利率</th>
+							<th width="120">开始日期</th>
+							<th width="120">结束日期</th>
+							<th width="120">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:rates, as:'rate'}
+						<tr id="list_data_${rate.id}">
+							<td>${rate_index}</td>
+							<td>${rate.type?.name}</td>
+							<td>${rate.rate}%</td>
+							<td>${rate.start_date?.format("yyyy-MM-dd")}</td>
+							<td>${rate.end_date == null ? "-" : rate.end_date?.format("yyyy-MM-dd")}</td>
+							<td>
+								<a href="javascript:;" onclick="edit(${rate.id});">编辑</a>
+								<a href="javascript:;" onclick="del(${rate.id});">删除</a>
+							</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$('#add_rate').click(function(){
+		$.get('@{system.RateManage.addRate}',{},function(msg){
+			APP.alert(1,'新增利率',msg,400);
+		})
+	})
+})
+function edit(id) {
+	$.get('@{system.RateManage.editRate}',{id:id},function(msg){
+		APP.alert(1,'编辑利率',msg,400);
+	})
+}
+function del(id) {
+	$.get('@{system.RateManage.delRate}',{id:id},function(msg){
+		APP.tips('success','删除成功！');
+		setTimeout(function(){window.location.reload();},500);
+	})
+}
+</script>

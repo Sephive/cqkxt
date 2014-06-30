@@ -1,0 +1,70 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>村组管理 </span>
+				<span><a id="add_group" href="javascript:;" class="clear_btn"><em>新增</em></a></span>
+				<span style="font-size: 14px;">村组名称：</span>
+				<input type="text" id="group_name" name="group_name" value="${groupName}" />
+				<a id="chaxun" href="javascript:;" class="save_btn"><em>查询</em></a>
+			</div>
+			<div class="content">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="70">村组编号</th>
+							<th width="70">村组名称</th>
+							<th width="70">金算盘编号</th>
+							<th width="70">金算盘名称</th>
+							<th width="120">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:groups, as:'group'}
+						<tr>
+							<td>${group.number}</td>
+							<td>${group.name}</td>
+							<td>${group.jsp_number}</td>
+							<td>${group.jsp_name}</td>
+							<td>
+								<a href="javascript:;" onclick="edit('${group.number}');">编辑</a>
+								<a href="javascript:;" onclick="del('${group.number}');">删除</a>
+							</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$('#add_group').click(function(){
+		$.get('@{system.GroupManage.addGroup}',{},function(msg){
+			APP.alert(1,'新增村组',msg,400);
+		})
+	})
+	$('#chaxun').click(function(){
+		window.location = '/system.GroupManage/search?groupName=' + encodeURI($('#group_name').val());
+	})
+})
+function edit(number){
+	$.get('@{system.GroupManage.editGroup}',{number:number},function(msg){
+		APP.alert(1,'编辑村组',msg,400);
+	})
+}
+function del(number){
+	$.get('@{system.GroupManage.delGroup}',{number:number},function(msg){
+		if (msg.error==1) {
+			APP.tips('success','删除成功！');
+			setTimeout(function(){window.location.reload();},1000);
+		} else {
+			APP.tips('error',msg.error,2500);
+			setTimeout(function(){window.location.reload();},2600);
+		}
+	})
+}
+</script>

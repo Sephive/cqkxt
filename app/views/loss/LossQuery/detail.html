@@ -1,0 +1,73 @@
+#{extends '/layout.html' /}
+<!--content-->
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header"> <span>挂失单详细</span> </div>
+			<div class="content">
+				<table width="100%" border="1" bordercolor="#dfdfdf" cellpadding="0" cellspacing="0" class="table_add">
+					<tr>
+						<td width="101" height="30" class="lefttd">存款凭证编号：</td>
+						<td height="30" style="font-size: 24px; font-weight: bold; color: blue;">${gsd.ckd_id}</td>
+						<td width="101" height="30" class="lefttd">姓名：</td>
+						<td height="30">${gsd.user_name}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">身份证号码：</td>
+						<td height="30">${gsd.user_id_card}</td>
+						<td width="101" height="30" class="lefttd">村组名称：</td>
+						<td height="30">${gsd.user_group}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">存款种类：</td>
+						<td height="30">${gsd.type?.name}</td>
+						<td width="101" height="30" class="lefttd">利息标准：</td>
+						<td height="30">${gsd.money_rate}%</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">存款日期：</td>
+						<td height="30">${gsd.start_date?.format("yyyy-MM-dd")}</td>
+						<td width="101" height="30" class="lefttd">到期日期：</td>
+						<td height="30">${gsd.end_date == null ? "-" : gsd.end_date?.format("yyyy-MM-dd")}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">挂失本金：</td>
+						<td height="30">${gsd.money_basic?.format(',000')}</td>
+						<td width="101" height="30" class="lefttd">挂失时间：</td>
+						<td height="30">${gsd.created_at?.format("yyyy-MM-dd HH:mm:ss")}</td>
+					</tr>
+					<tr>
+						<td width="150" height="30" class="lefttd">代理人姓名：</td>
+						<td height="30">${gsd.agent_name}</td>
+						<td width="91" class="lefttd">代理人身份证：</td>
+						<td height="30">${gsd.agent_id_card}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">处理人：</td>
+						<td height="30" >${gsd.operator_name}</td>
+						<td width="101" height="30" class="lefttd">处理时间：</td>
+						<td height="30">${gsd.created_at?.format("yyyy-MM-dd HH:mm:ss")}</td>
+					</tr>
+					<tr>
+						<td width="91" class="lefttd">状态：</td>
+						<td height="30">${gsd.getGsdStatus()}</td>
+						<td width="101" height="30" class="lefttd">备注：</td>
+						<td height="30">${gsd.remark}</td>
+					</tr>
+					<tr>
+						<td class="lefttd" colspan="4" height="50">
+							<a id="submit_btn" href="javascript:;" class="save_btn"><em>返回</em></a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	$(function(){
+		$("#submit_btn").click(function(){
+			history.go(-1);	
+		})
+	})
+	</script>
+</div>

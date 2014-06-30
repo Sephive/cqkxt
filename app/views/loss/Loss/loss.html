@@ -1,0 +1,104 @@
+#{extends '/layout.html' /}
+#{if "true".equals(flash.is_save)}
+<script type="text/javascript">
+#{ifErrors}
+	msgTips('error','${errors.get(0)}',2000);
+#{/ifErrors}
+#{else}
+	msgTips('success','挂失成功',2000);
+#{/else}
+</script>
+#{/if}
+<!--content-->
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header"> <span>挂失</span> </div>
+			<div class="content">
+				<form action="@{loss.Loss.save}" method="post" enctype="multipart/form-data" name="form1">
+					<input name="action" type="hidden" value="add" />
+					<table width="100%" border="1" bordercolor="#dfdfdf" cellpadding="0" cellspacing="0" class="table_add">
+						<tr>
+							<td width="101" height="30" class="lefttd">存款凭证编号：</td>
+							<td height="30"><input id="ckd_id" name="gsd.ckd_id" type="text" class="input" value=""></td>
+							<td width="101" height="30" class="lefttd">姓名：</td>
+							<td height="30"><span id="user_name"></span></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">身份证号码：</td>
+							<td height="30"><span id="user_id_card"></span></td>
+							<td width="101" height="30" class="lefttd">本金：</td>
+							<td height="30"><span id="ckd_basic_money"></span></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款种类：</td>
+							<td height="30"><span id="ckd_money_type"></span></td>
+							<td width="101" height="30" class="lefttd">利率：</td>
+							<td height="30"><span id="ckd_rate"></span></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款时间：</td>
+							<td height="30"><span id="ckd_start_date"></span></td>
+							<td width="101" height="30" class="lefttd">到期时间：</td>
+							<td height="30"><span id="ckd_end_date">-</span></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">代理人姓名：</td>
+							<td height="30"><input name="gsd.agent_name" type="text" class="input" ignore-tab="true" value=""></td>
+							<td width="101" height="30" class="lefttd">代理人身份证：</td>
+							<td height="30"><input name="gsd.agent_id_card" type="text" class="input" ignore-tab="true" value=""></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">挂失原因：</td>
+							<td height="30" colspan="3">
+								<textarea id="ckd.remark" name="gsd.remark" rows="2" cols="80"></textarea>
+							</td>
+						</tr>
+						<tr>
+							<td class="lefttd" colspan="4" height="50">
+								<a id="submit_btn" href="javascript:;" class="save_btn"><em>确定</em></a>
+								<a id="reset_btn" href="javascript:;" class="clear_btn"><em>取消</em></a>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	$(function(){
+		$("#submit_btn").click(function(){
+			document.form1.submit();		
+		})
+		$("#reset_btn").click(function(){
+			document.form1.reset();
+			window.location.reload();
+		})
+		//查存款信息
+		$('#ckd_id').blur(function(){
+			var ckd_id = $(this).val();
+			if (ckd_id != '') {
+				$.get('@{loss.Loss.queryCKD}',{id:ckd_id},function(msg){
+					if (msg != '') {
+						$('#user_name').html('');
+						$('#user_id_card').html('');
+						$('#ckd_basic_money').html('');
+						$('#ckd_money_type').html('');
+						$('#ckd_rate').html('');
+						$('#ckd_start_date').html('');
+						$('#ckd_end_date').html('-');
+						
+						$('#user_name').html(msg.user_name);
+						$('#user_id_card').html(msg.user_id_card);
+						$('#ckd_basic_money').html(msg.money_basic);
+						$('#ckd_money_type').html(msg.type_name);
+						$('#ckd_rate').html(msg.money_rate);
+						$('#ckd_start_date').html(msg.start_date);
+						$('#ckd_end_date').html(msg.end_date == '' ? '-' : msg.end_date);
+					}
+				});
+			}
+		})
+	})
+	</script>
+</div>

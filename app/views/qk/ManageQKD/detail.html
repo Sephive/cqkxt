@@ -1,0 +1,85 @@
+#{extends '/layout.html' /}
+<!--content-->
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header"> <span>取款单详细</span> </div>
+			<div class="content">
+					<table width="100%" border="1" bordercolor="#dfdfdf" cellpadding="0" cellspacing="0" class="table_add">
+						<tr>
+							<td width="101" height="25" class="lefttd" colspan="4">存　款　单　信　息</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款单编号：</td>
+							<td height="30" style="font-size: 24px; font-weight: bold; color: blue;">${qkd.ckd?.id}</td>
+							<td width="101" height="30" class="lefttd">姓名：</td>
+							<td height="30">${qkd.ckd?.user_name}</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">身份证号码：</td>
+							<td height="30">${qkd.ckd?.user_id_card}</td>
+							<td width="101" height="30" class="lefttd">本金：</td>
+							<td height="30">${qkd.ckd?.money_basic.format(',000')}</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款种类：</td>
+							<td height="30">${qkd.ckd?.type?.name}</td>
+							<td width="101" height="30" class="lefttd">利率：</td>
+							<td height="30">${qkd.ckd?.money_rate?.format('.0')} %</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款时间：</td>
+							<td height="30">${qkd.ckd?.start_date?.format("yyyy-MM-dd")}</td>
+							<td width="101" height="30" class="lefttd">到期时间：</td>
+							<td height="30">${qkd.ckd?.end_date == null ? "-" : qkd.ckd?.end_date?.format("yyyy-MM-dd")}</td>
+						</tr>
+						<tr>
+							<td width="101" height="25" class="lefttd" colspan="4">取　款　单　信　息</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">取款方式：</td>
+							<td height="30">${qkd.getOutType()}</td>
+							<td width="101" height="30" class="lefttd">支取本金：</td>
+							<td height="30">${qkd.out_bj?.format('0')}</td>
+						</tr>
+						<tr>
+							<td width="150" height="30" class="lefttd">利息总计：</td>
+							<td height="30">${qkd.out_lx?.format(',000')}</td>
+							<td width="91" class="lefttd">本次取款合计：</td>
+							<td height="30" colspan="3">${qkd.out_hj.format(',000')}</td>
+						</tr>
+						<tr>
+							<td width="150" height="30" class="lefttd">代理人姓名：</td>
+							<td height="30">${qkd.agent_name}</td>
+							<td width="91" class="lefttd">代理人身份证：</td>
+							<td height="30" colspan="3">${qkd.agent_id_card}</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">取款日期：</td>
+							<td height="30">${qkd.out_time?.format('yyyy-MM-dd')}</td>
+							<td width="101" height="30" class="lefttd">备注：</td>
+							<td height="30">${qkd.remark}</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">处理人：</td>
+							<td height="30">${qkd.operator_name}</td>
+							<td width="101" height="30" class="lefttd">处理时间：</td>
+							<td height="30">${qkd.created_at?.format("yyyy-MM-dd HH:mm:ss")}</td>
+						</tr>
+						<tr>
+							<td class="lefttd" colspan="4" height="50">
+								<a id="submit_btn" href="javascript:;" class="save_btn"><em>返回</em></a>
+							</td>
+						</tr>
+					</table>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$("#submit_btn").click(function(){
+		history.go(-1);	
+	})
+})
+</script>

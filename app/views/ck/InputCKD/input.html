@@ -1,0 +1,457 @@
+#{extends '/layout.html' /}
+#{if "true".equals(flash.is_save)}
+<script type="text/javascript">
+#{ifErrors}
+	msgTips('error','${errors.get(0)}',2000);
+#{/ifErrors}
+#{else}
+	msgTips('success','保存成功',2000);
+#{/else}
+</script>
+#{/if}
+<link href="@{'/public/jquery-ui-1.10.4.custom/css/ui-lightness/jquery-ui-1.10.4.custom.min.css'}" rel="stylesheet">
+<script type="text/javascript" src="@{'/public/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js'}"></script>
+  
+<!--//*************************************选择框******************************************-->
+<style>
+.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+  }
+  /* IE 6 doesn't support max-height
+   * we use height instead, but this forces the menu to always be this tall
+   */
+  * html .ui-autocomplete {
+    height: 100px;
+  }
+.custom-combobox {
+	position: relative;
+	display: inline-block;
+	width: 250px;
+}
+.custom-combobox a {
+	left: 250px;
+}
+.custom-combobox-toggle {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	margin-left: -1px;
+	padding: 0;
+	/* support: IE7 */
+	*height: 1.7em;
+	*top: 0.1em;
+}
+.custom-combobox-input {
+	margin: 0;
+	padding: 0.3em;
+	width: 242px;
+}
+</style>
+<script>
+(function( $ ) {
+	$.widget( "custom.combobox", {
+		_create: function() {
+			this.wrapper = $( "<span>" )
+				.addClass( "custom-combobox" )
+				.insertAfter( this.element );
+
+			this.element.hide();
+			this._createAutocomplete();
+			this._createShowAllButton();
+		},
+
+		_createAutocomplete: function() {
+			var selected = this.element.children( ":selected" ),
+				value = selected.val() ? selected.text() : "";
+
+			this.input = $( "<input>" )
+				.appendTo( this.wrapper )
+				.val( value )
+				.attr( "title", "" )
+				.addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+				.autocomplete({
+					delay: 0,
+					minLength: 0,
+					source: $.proxy( this, "_source" )
+				})
+				.tooltip({
+					tooltipClass: "ui-state-highlight"
+				});
+
+			this._on( this.input, {
+				autocompleteselect: function( event, ui ) {
+					ui.item.option.selected = true;
+					this._trigger( "select", event, {
+						item: ui.item.option
+					});
+				},
+
+				autocompletechange: "_removeIfInvalid"
+			});
+		},
+
+		_createShowAllButton: function() {
+			var input = this.input,
+				wasOpen = false;
+
+			$( "<a>" )
+				.attr( "tabIndex", -1 )
+				.attr( "title", "" )
+				.tooltip()
+				.appendTo( this.wrapper )
+				.button({
+					icons: {
+						primary: "ui-icon-triangle-1-s"
+					},
+					text: false
+				})
+				.removeClass( "ui-corner-all" )
+				.addClass( "custom-combobox-toggle ui-corner-right" )
+				.mousedown(function() {
+					wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+				})
+				.click(function() {
+					input.focus();
+
+					// Close if already visible
+					if ( wasOpen ) {
+						return;
+					}
+
+					// Pass empty string as value to search for, displaying all results
+					input.autocomplete( "search", "" );
+				});
+		},
+
+		_source: function( request, response ) {
+			var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+			response( this.element.children( "option" ).map(function() {
+				var text = $( this ).text();
+				if ( this.value && ( !request.term || matcher.test(text) ) )
+					return {
+						label: text,
+						value: text,
+						option: this
+					};
+			}) );
+		},
+
+		_removeIfInvalid: function( event, ui ) {
+
+			// Selected an item, nothing to do
+			if ( ui.item ) {
+				return;
+			}
+
+			// Search for a match (case-insensitive)
+			var value = this.input.val(),
+				valueLowerCase = value.toLowerCase(),
+				valid = false;
+			this.element.children( "option" ).each(function() {
+				if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+					this.selected = valid = true;
+					return false;
+				}
+			});
+
+			// Found a match, nothing to do
+			if ( valid ) {
+				return;
+			}
+
+			// Remove invalid value
+			this.input
+				.val( "" )
+				.attr( "title", value + " didn't match any item" )
+				.tooltip( "open" );
+			this.element.val( "" );
+			this._delay(function() {
+				this.input.tooltip( "close" ).attr( "title", "" );
+			}, 2500 );
+			this.input.data( "ui-autocomplete" ).term = "";
+		},
+
+		_destroy: function() {
+			this.wrapper.remove();
+			this.element.show();
+		}
+	});
+})( jQuery );
+
+$(function() {
+	$( "#group_all" ).combobox();
+	$( "#customer_all" ).combobox();
+});
+</script>
+<!--//*************************************选择框end****************************-->
+
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header"> <span>#{if qkd != null}剩余本金转存#{/if}#{else}新存款#{/else}</span> </div>
+			<div class="content">
+				<form action="@{ck.InputCKD.save}" method="post" enctype="multipart/form-data" name="form1">
+					<input name="action" type="hidden" value="add" />
+					#{if qkd != null}
+					<input name="ckd.parent_id" type="hidden" value="${qkd?.ckd?.id}" />
+					#{/if}
+					<table width="100%" border="1" bordercolor="#dfdfdf" cellpadding="0" cellspacing="0" class="table_add">
+						<tr>
+							<td width="101" height="30" class="lefttd">村组名称：</td>
+							<td height="30">
+								<div id="auto-1" style="text-align: left; float: left;">
+									<select id="group_all" ignore-tab="true">
+										<option value=""></option>
+										#{list items:groups, as:'group'}
+										<option value="${group.number + '/' + group.name}" #{if qkd?.ckd?.group_number.equals(group.number) || group.number?.equals(group_number)}selected="selected"#{/if}>${group.number + '/' + group.name}</option>
+										#{/list}
+									</select>
+								</div>
+								<div style="margin-left: 290px;">
+									<a id="add_group" href="javascript:;">新增</a>
+									<input id="group_number" name="ckd.group_number" type="hidden" value="${qkd==null?'':qkd.ckd?.group_number}" />
+									<input id="group_name" name="ckd.group_name" type="hidden" value="${qkd==null?'':qkd.ckd?.group_name}" />
+								</div>
+							</td>
+							<td width="150" height="30" class="lefttd">代理人姓名：</td>
+							<td height="30"><input name="ckd.agent_name" type="text" class="input" ignore-tab="true"></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款人：</td>
+							<td height="30">
+								<div id="auto-2" style="text-align: left; float: left;">
+									<select id="customer_all" ignore-tab="true">
+										<option value=""></option>
+										#{list items:customers, as:'customer'}
+										<option value="${customer.number + '/' + customer.name + '/' + customer.user_id_card}" #{if qkd?.ckd?.user_number.equals(customer.number)}selected="selected"#{/if}>${customer.number + '/' + customer.name + '/' + customer.user_id_card}</option>
+										#{/list}
+									</select>
+								</div>
+								<div style="margin-left: 290px;">
+									<a id="add_customer" href="javascript:;">新增</a>
+									<input id="user_number" name="ckd.user_number" type="hidden" value="${qkd==null?'':qkd.ckd?.user_number}" />
+									<input id="user_name" name="ckd.user_name" type="hidden" value="${qkd==null?'':qkd.ckd?.user_name}" />
+								</div>
+							</td>
+							<td width="91" class="lefttd">代理人身份证：</td>
+							<td height="30" colspan="3"><input name="ckd.agent_id_card" type="text" class="input" ignore-tab="true"></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">身份证号码：</td>
+							<td height="30"><input id="user_id_card" name="ckd.user_id_card" readonly="readonly" maxlength="18" type="text" class="input" value="${qkd==null?'':qkd.ckd?.user_id_card}"></td>
+							<td width="101" height="30" class="lefttd">操作者：</td>
+							<td height="30" >${loginUser.user_name}</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">本金：</td>
+							<td height="30">
+								<input id="money_basic_input" type="text" class="input" value="${qkd?.out_sy?.format(',000.00')}" onkeyup="this.value=comdify(this)">
+								<input id="money_basic" name="ckd.money_basic" type="hidden" class="input" value="${qkd?.out_sy}" />
+							</td>
+							<td width="101" height="30" class="lefttd">利息标准：</td>
+							<td height="30">
+								<span id="curr_rate_span"></span>
+								<input id="curr_rate_input" name="ckd.money_rate" type="hidden" class="input" value="">
+							</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款种类：</td>
+							<td height="30">
+								<select name="ckd.money_type" id="money_type" style="width: 262px;">
+									#{list items:types, as:'type'}
+										#{if type.id != 1}
+										<option value="${type.id}" rate="${type.getCurrRate2()}">${type.name}</option>
+										#{/if}
+									#{/list}
+								</select>
+							</td>
+							<td width="101" height="30" class="lefttd">到期日期：</td>
+							<td height="30">
+								<span id="ck_end_span"></span>
+								<input id="ck_end_date" name="ckd.end_date" type="hidden" value="" />
+							</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款日期：</td>
+							<td height="30">
+								<input id="ck_start_date" name="ckd.start_date" type="text" class="input" value="${currTime?.format('yyyy-MM-dd')}" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" tips="时间不能为空！" />
+							</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">备注：</td>
+							<td height="30" colspan="3"><input name="ckd.remark" type="text" class="input" id="num" value=""></td>
+						</tr>
+						<tr>
+							<td class="lefttd" colspan="4" height="50">
+								<a id="submit_btn" href="javascript:;" class="save_btn"><em>确定</em></a>
+								<a id="reset_btn" href="javascript:;" class="clear_btn"><em>清空</em></a>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	//金额千分位自动分位
+    function comdify(thisobj) {
+      thisobj.value = thisobj.value.replace(/,/g, "");
+      var money_basic = document.getElementById('money_basic');
+      money_basic.value = thisobj.value;
+      if (thisobj.value.length > 10) {
+      	thisobj.value = thisobj.value.substring(0, 10);
+      }
+      var re=/\d{1,3}(?=(\d{3})+$)/g;
+      var n1=thisobj.value.replace(/^(\d+)((\.\d+)?)$/,function(s,s1,s2){return s1.replace(re,"$&,")+s2;});
+      return n1;
+    }
+	$(function(){
+		#{if group_number == null}
+		$('#auto-1 :input').focus();
+		#{/if}
+		#{else}
+		$('#auto-2 :input').focus();
+		#{/else}
+		//新增村组
+		$('#add_group').click(function(){
+			$.get('@{system.GroupManage.addGroup}',{},function(msg){
+				APP.alert(1,'新增村组',msg,400);
+			})
+		})
+		//新增存款人
+		$('#add_customer').click(function(){
+			var user_group_all = $('#auto-1 :input').val();
+			if (user_group_all == '') {
+				APP.tips('warn','请选择村组');
+				return false;
+			}
+			var groupNumber = user_group_all.split('/')[0];
+			var data = {groupNumber:groupNumber};
+			$.get('@{system.CustomerManage.addCustomer}',data,function(msg){
+				APP.alert2(2,'新增存款人',msg,420,10);
+			})
+		})
+		//查询村组
+		$('#chaxun_group_btn').click(function(){
+			$.get('@{ck.InputCKD.queryGroup}',{},function(msg){
+				APP.alert(1,'查询村组',msg,550);
+			})
+		})
+		function setCurrRate() {
+			var rate = $('#money_type option:selected').attr('rate');
+			$('#curr_rate_input').val(rate);
+			$('#curr_rate_span').html(rate + '%');
+		};
+		$('#user_name_all').blur(function(){
+			var user_name_all = $('#user_name_all').val();
+			$('#user_id_card').val(user_name_all.split('-')[2]);
+		});
+		$("#submit_btn").click(function(){
+			var user_group_all = $('#auto-1 :input').val();
+			var user_name_all = $('#auto-2 :input').val();
+			var user_id_card = $('#user_id_card').val();
+			var money_basic = $('#money_basic').val();
+			if (user_group_all == '') {
+				APP.tips('error','村组名称不能为空！');
+				$('#user_group_all').focus();
+				return false;
+			}
+			var group_number = user_group_all.split('/')[0];
+			var group_name = user_group_all.split('/')[1];
+			if (group_number == '' || group_name == '') {
+				APP.tips('error','村组名称输入不正确！');
+				$('#auto-1 :input').focus();
+				return false;
+			}
+			$('#group_number').val(group_number);
+			$('#group_name').val(group_name);
+			
+			if (user_name_all == '') {
+				APP.tips('error','姓名不能为空！');
+				$('#user_name_all').focus();
+				return false;
+			}
+			var user_number = user_name_all.split('/')[0];
+			var user_name = user_name_all.split('/')[1];
+			var user_id_card = user_name_all.split('/')[2];
+			if (user_number == '' || user_name == '' || user_id_card == '') {
+				APP.tips('error','姓名输入不正确！');
+				$('#auto-2 :input').focus();
+				return false;
+			}
+			$('#user_number').val(user_number);
+			$('#user_name').val(user_name);
+			$('#user_id_card').val(user_id_card);
+			if (user_id_card == '') {
+				APP.tips('error','身份证号码不能为空！');
+				$('#user_id_card').focus();
+				return false;
+			}
+			if (money_basic == '') {
+				APP.tips('error','本金不能为空！');
+				$('#money_basic').focus();
+				return false;
+			}
+			if(isNaN(money_basic)){
+				APP.tips('error','本金不正确，只能填数字！');
+				$('#money_basic').focus().select();
+				return false;
+			}
+			document.form1.submit();		
+		})
+		$("#reset_btn").click(function(){
+			document.form1.reset();
+			window.location.reload();
+		})
+		$('#money_type').change(function(){
+			setCurrRate();
+			setEndDate();
+		})
+		setCurrRate();
+		function setEndDate() {
+			var money_type = $('#money_type option:selected').val();
+			var start_date = $('#ck_start_date').val();
+			$.get('@{ck.InputCKD.getEndDate}',{startDate:start_date, id:money_type},function(msg){
+				$('#ck_end_span').html(msg.end_date);
+				$('#ck_end_date').val(msg.end_date);
+			})
+		}
+		$('#ck_start_date').blur(function(){
+			setEndDate();
+		});
+		$('#ck_start_date').focus(function(){
+			setEndDate();
+		});
+		$('#ck_start_date').change(function(){
+			setEndDate();
+		});
+		setEndDate();
+		
+		//选择框
+		$('#auto-1 :input').live('blur', function(){
+			$('#auto-2 :input').val('');
+			$('#user_number').val('');
+			$('#user_name').val('');
+			$('#user_id_card').val('');
+			
+			var group_all = $(this).val();
+			if (group_all != '') {
+				var group_number = group_all.split('/')[0];
+				window.location='/ck.InputCKD/input?group_number='+group_number;
+			}
+		})
+		$('#auto-2 :input').live('blur', function(){
+			var user_name_all = $(this).val();
+			var user_number = user_name_all.split('/')[0];
+			var user_name = user_name_all.split('/')[1];
+			var user_id_card = user_name_all.split('/')[2];
+			$('#user_number').val(user_number);
+			$('#user_name').val(user_name);
+			$('#user_id_card').val(user_id_card);
+		})
+	})
+	</script>
+</div>

@@ -1,0 +1,203 @@
+#{extends '/layout.html' /}
+#{if "true".equals(flash.isUpload)}
+<script type="text/javascript">
+#{ifErrors}
+	msgTips('error','${errors.get(0)}',2000);
+#{/ifErrors}
+#{else}
+	msgTips('success','导入成功',2000);
+#{/else}
+</script>
+#{/if}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<div style="float: left;">
+					<span>存款单管理 </span>
+					<span style="font-size: 12px;">状态：</span>
+					<select id="bigsort" style="width: 120px;">
+						<option value="" #{if status == null || "".equals(status)}selected="selected"#{/if}>全部</option>
+						<option value="0" #{if "0".equals(status)}selected="selected"#{/if}>待审核</option>
+						<option value="1" #{if "1".equals(status)}selected="selected"#{/if}>已审核</option>
+						*{
+						<option value="2" #{if "2".equals(status)}selected="selected"#{/if}>已拆分</option>
+						}*
+						<option value="3" #{if "3".equals(status)}selected="selected"#{/if}>已取款</option>
+						<option value="4" #{if "4".equals(status)}selected="selected"#{/if}>已挂失</option>
+						<option value="5" #{if "5".equals(status)}selected="selected"#{/if}>已锁定</option>
+						<option value="6" #{if "6".equals(status)}selected="selected"#{/if}>已补单</option>
+					</select>
+					<span style="font-size: 16px; font-weight: lighter;">|</span>
+					<span style="font-size: 12px;">姓名：</span>
+					<input id="user_name" type="text" name="user_name" value="${user_name}" style="width: 80px;"/>
+					<span style="font-size: 12px;">存款凭证编号：</span>
+					<input id="number" type="text" name="number" value="${id}" style="width: 80px;"/>
+					<a id="chaxun" href="javascript:;" class="save_btn"><em>查询</em></a>
+					<a id="all_approve" href="javascript:;" class="save_btn"><em>批量审核</em></a>
+				</div>
+				<div style="float: right; margin-right: 20px;">
+					<form id="form1" action="@{ck.ManageCKD.upload}" method="post" enctype="multipart/form-data">
+						<input name="file" type="file" value="" style="width: 140px;" />
+						<a id="upload" href="javascript:;" class="save_btn"><em>导入</em></a>
+					</form>
+				</div>
+			</div>
+			<div class="content" id="form_data">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="100" style="text-align: center;">存款凭证编号</th>
+							<th width="160" style="padding-left: 30px;">村组</th>
+							<th width="160">存款人</th>
+							<th width="80">存款种类</th>
+							<th width="40">利率</th>
+							<th width="100" style="text-align: center;">本金(元)</th>
+							<th width="100" style="text-align: center;">存款时间</th>
+							<th width="100" style="text-align: center;">到期时间</th>
+							<th width="100" style="text-align: center;">状态</th>
+							<th width="160">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:ckds, as:'ckd'}
+						<tr id="list_data_${ckd.id}">
+							<td style="text-align: center;">${ckd.id}</td>
+							<td>${ckd.group_number + '/' + ckd.group_name}</td>
+							<td>${ckd.user_number + '/' + ckd.user_name}</td>
+							<td>${ckd.type?.name}</td>
+							<td>${ckd.money_rate?.format(".0")}%</td>
+							<td style="text-align: right;">${ckd.money_basic?.format(',000')}</td>
+							<td style="text-align: center;">${ckd.start_date?.format("yyyy-MM-dd")}</td>
+							<td style="text-align: center;">${ckd.end_date == null ? "-" : ckd.end_date?.format("yyyy-MM-dd")}</td>
+							<td style="text-align: center;">${ckd.getCKDStatus()}</td>
+							<td>
+								<a href="javascript:;" onclick="xiugai(${ckd.id});">查看</a>
+								#{if ckd.status == 1}
+								<a href="javascript:openwindow('@{Print.ckd(ckd.id)}','凭证打印',700,450,'no','no','no','no','no','no');">打印凭证</a>
+								#{/if}
+							</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$("#bigsort").change(function(){
+		var status = $("#bigsort").val();
+		window.location = '@{ck.ManageCKD.list}' + '?status=' + status;
+	})
+	//审核
+	$("#approve1").click(function(){
+		//var ids = getCheckedIds();
+		var ids = $('#data_id').val();
+		if (ids == '') {
+			msgTips('warn','未选中');
+			return false;
+		}
+		$.post('@{ck.ManageCKD.approve1}',{ids:ids},function(msg){
+			if (msg.error == 1) {
+				msgTips('success','复核成功！');
+			} else {
+				msgTips('error',msg.error);
+			}
+			window.location.reload();
+		})
+	})
+	//作废
+	$("#zuofei").click(function(){
+		//var ids = getCheckedIds();
+		var ids = $('#data_id').val();
+		if (ids == '') {
+			msgTips('warn','未选中');
+			return false;
+		}
+		$.post('@{ck.ManageCKD.zuofei}',{ids:ids},function(msg){
+			if (msg.error == 1) {
+				msgTips('success','作废成功！');
+			} else {
+				msgTips('error',msg.error);
+			}
+			window.location.reload();
+		})
+	})
+	//拆分
+	$("#chaifen").click(function(){
+		//var ids = getCheckedIds();
+		var ids = $('#data_id').val();
+		if (ids == '') {
+			msgTips('warn','未选中');
+			return false;
+		}
+		$.post('@{ck.ManageCKD.chaifen}',{ids:ids},function(msg){
+			if (msg.error == 1) {
+				msgTips('success','复核成功！');
+			} else {
+				msgTips('error',msg.error);
+			}
+			window.location.reload();
+		})
+	})
+	//批量审核
+	$("#all_approve").click(function(){
+		APP.conFirm('确认', '确定批量审核所有未核存单吗？', 'all_approve()');
+	})
+	
+	//查询
+	$("#chaxun").click(function(){
+		var id = $('#number').val();
+		var user_name = $('#user_name').val();
+		if (id == '' && user_name == '') {
+			msgTips('warn','请输入姓名或存款凭证编号');
+			return false;
+		}
+		window.location = '@{ck.ManageCKD.chaxun}'+'?id='+$.trim(id)+'&user_name='+encodeURI($.trim(user_name));
+	})
+	function getCheckedIds() {
+		var ids = '';
+		$('input:checkbox[name=list_data]:checked').each(function(i){
+			ids += $(this).val() + ',';
+		})
+		if (ids != '') {
+			ids = ids.substring(0,ids.length -1);
+		}
+		return ids;
+	}
+	//导入
+	$("#upload").click(function(){
+		$('#form1').submit();
+	})
+});
+//修改
+function xiugai(ids){
+	//var ids = getCheckedIds();
+	/*
+	var ids = $('#data_id').val();
+	if (ids == '') {
+		msgTips('warn','未选中');
+		return false;
+	}
+	var id = ids.split(',');
+	if (id.length > 1) {
+		msgTips('warn','最多选择1项');
+		return false;
+	}
+	*/
+	window.location = '@{ck.ManageCKD.edit}' + '?id=' + ids;
+}
+function all_approve(){
+	$.post('@{ck.ManageCKD.allAprove}',{},function(msg){
+		if (msg.error == 1) {
+			APP.tips('success','批量审核成功！');
+		} else {
+			APP.tips('error',msg.error);
+		}
+		setTimeout(function(){window.location.reload();},1000);
+	}
+)}
+</script>

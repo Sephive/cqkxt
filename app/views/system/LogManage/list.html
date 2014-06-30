@@ -1,0 +1,33 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>系统日志</span>
+			</div>
+			<div class="content">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="40">序号</th>
+							<th width="70">操作行为</th>
+							<th width="70">操作者</th>
+							<th width="70">操作时间</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:logs, as:'log'}
+						<tr id="list_data_${log.id}">
+							<td>${(page - 1)*pageSize + log_index}</td>
+							<td>${log.action_name}</td>
+							<td>${log.user_name}</td>
+							<td>${log.created_at?.format("yyyy-MM-dd HH:mm:ss")}</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+			</div>
+		</div>
+	</div>
+</div>

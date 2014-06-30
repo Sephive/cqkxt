@@ -1,0 +1,50 @@
+<style>
+td {padding-top: 5px;}
+</style>
+<div style="margin: 20px; text-align: center;">
+	<table cellspacing="30" cellpadding="30">
+		<tr>
+			<td>新密码：</td>
+			<td><input id="login_pass1" type="text" name="login_pass1" value="" /></td>
+		</tr>
+		<tr>
+			<td>确认新密码：</td>
+			<td><input id="login_pass2" type="text" name="login_pass2" value="" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<a id="submit" href="javascript:;" class="save_btn"><em>确定</em></a>
+				<a id="reset" href="javascript:;" onclick="APP.close(this)" class="clear_btn"><em>取消</em></a>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('#submit').click(function(){
+			var login_pass1 = $('#login_pass1').val();
+			var login_pass2 = $('#login_pass2').val();
+			if (login_pass1 == '') {
+				APP.tips('warn','新密码不能为空');
+				return false;
+			}
+			if (login_pass2 == '') {
+				APP.tips('warn','确认新密码不能为空');
+				return false;
+			}
+			if (login_pass1 != login_pass2) {
+				APP.tips('warn','两次密码不一致');
+				return false;
+			}
+			var data = {id:${user.id},login_pass:login_pass1};
+			$.post('@{system.UserManage.saveUserPass}',data, function(msg){
+				if (msg.error == 1) {
+					APP.tips('success','修改密码成功！');
+					setTimeout(function(){window.location.reload();},500);
+				} else {
+					APP.tips('error',msg.error);
+				}
+			})
+		})
+	})
+</script>

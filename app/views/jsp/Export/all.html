@@ -1,0 +1,30 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="content">
+				<span><a id="zcyw" href="javascript:;" class="save_btn"><em>正常业务</em></a></span>
+				<span style="margin-left: 10px;"><a id="cfyw" href="javascript:;" class="save_btn"><em>拆分业务</em></a></span>
+				<p id="fuck_liuhui" style="margin-top: 50px;"></p>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$('#zcyw').click(function(){
+		//window.location = '@{jsp.Export.zcyw}';
+		$.get('@{jsp.Export.zcyw}',{},function(){
+			$('#fuck_liuhui').html('<span style="color:red;">文件导出成功，所在目录为服务器 C:\\jsp</span>');
+			APP.tips('success','导出成功');
+		})
+	})
+	$('#cfyw').click(function(){
+		//window.location = '@{jsp.Export.cfyw}';
+		$.get('@{jsp.Export.cfyw}',{},function(){
+			$('#fuck_liuhui').html('<span style="color:red;">文件导出成功，所在目录为服务器 C:\\jsp</span>');
+			APP.tips('success','导出成功');
+		})
+	})
+})
+</script>

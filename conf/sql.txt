@@ -1,0 +1,11 @@
+--增加最后取息时间字段
+alter table t_ckd add last_out_lx_time datetime null;
+
+--更新最后取息时间
+update c set c.last_out_lx_time = a.out_time from t_ckd c, (select q.ckd_id, max(q.out_time) out_time from t_qkd q where q.out_type = 1 group by q.ckd_id) a 
+where c.id = a.ckd_id;
+
+--回滚权限配置
+delete from user_auth;
+delete from t_auth;
+insert into t_auth(auth_name) values('回滚');

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!-- 插入打印控件 -->
+      <OBJECT  name="ojatoolsPrinter" CLASSID="CLSID:B43D3361-D075-4BE2-87FE-057188254255" 
+	              codebase="jatoolsPrinter.cab#version=8,6,0,0">
+	<embed name="ejatoolsPrinter" type="application/x-vnd.jatoolsPrinter"
+pluginspage="http://www.abc.com/print/jatools.xpi" width="0" height="0" />
+				  </OBJECT>  
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script src="@{'/public/javascripts/jquery.js'}" type="text/javascript"></script>
+	<script src="@{'/public/javascripts/jquery.jqprint.js'}" type="text/javascript"></script>
+	<title>存款单打印</title>
+	<style type="text/css">
+		.paper_size {width: 600px; height: 329px;} //存款凭证纸张宽高,减去print_content的padding后
+	</style>
+	<script type="text/javascript">
+		function doPrint() {
+			var myDoc = {
+				settingsID:"mysettings1", 
+				documents: document,
+				/*
+				 要打印的div 对象在本文档中，控件将从本文档中的 id 为 'page1' 的div对象，
+				 作为首页打印id 为'page2'的作为第二页打印            */
+				copyrights: '杰创软件拥有版权  www.jatools.com' // 版权声明,必须   
+			};
+			var jatoolsPrinter = navigator.userAgent.indexOf('MSIE')>-1 ? ojatoolsPrinter : ejatoolsPrinter;//判别IE或者非IE 
+			jatoolsPrinter.print(myDoc, true); // 直接打印，不弹出打印机设置对话框 
+		}
+	</script>
+</head>
+<body>
+	<div id="page1" class="paper_size" style="padding: 95px 0 0 55px; font: bolder 14px serif; background-image: url('/public/images/print/ckd.jpg'); background-repeat: no-repeat; ">
+		<table cellspacing="0" cellpadding="0" style="width:540px; height:210px;" border="0">
+			<tr>
+				<td width="300px"><label style="margin-left: 100px;">${ckd.user_name}</label></td>
+				<td><label style="margin-left: 50px;">${ckd.group_name}</label></td>
+			</tr>
+			<tr>
+				<td align="center"><label style="margin-left: 2px;">${utils.RMB.toUpcase(ckd.money_basic)}</label></td>
+				<td><label style="margin-left: 60px;">${ckd.money_basic?.format('0')}</label></td>
+			</tr>
+			<tr>
+				<td>
+					<label style="margin-left:100px;">${ckd.type?.years}</label><label style="margin-left: 60px;">${ckd.start_date?.format('yyyy')}</label><label style="margin-left: 32px;">${ckd.start_date?.format('MM')}</label><label style="margin-left: 30px;">${ckd.start_date?.format('dd')}</label>
+				</td>
+				<td>
+					<label style="margin-left: 36px;">${ckd.end_date?.format('yyyy')}</label><label style="margin-left: 30px;">${ckd.end_date?.format('MM')}</label><label style="margin-left: 25px;">${ckd.end_date?.format('dd')}</label>
+				</td>
+			</tr>
+			<tr>
+				<td><label style="margin-left: 145px;">${ckd.money_rate?.format('.0')}</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><label style="margin-left: 110px;">${ckd.end_date?.format('yyyy-MM-dd')}</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td valign="top">
+					<label style="margin-left: 50px;">${ckd.operator_name}</label><label style="margin-left: 100px;">${ckd.approve_name}</label>
+				</td>
+				<td valign="top">
+					<label style="margin-left: 40px;">${new Date()?.format('yyyy')}</label><label style="margin-left: 30px;">${new Date()?.format('MM')}</label><label style="margin-left: 25px;">${new Date()?.format('dd')}</label>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<script type="text/javascript">
+		$(function(){
+			//$('#print_content').jqprint();
+			doPrint();
+		})
+	</script>
+</body>
+</html>

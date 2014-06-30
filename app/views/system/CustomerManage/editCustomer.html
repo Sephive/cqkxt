@@ -1,0 +1,66 @@
+<style>
+td {padding-top: 5px;}
+</style>
+<div style="margin: 20px; text-align: center;">
+	<table cellspacing="30" cellpadding="30">
+		<tr>
+			<td>村组：</td>
+			<td style="text-align: left;">${customer.group_number + "/" + customer.group_name}</td>
+		</tr>
+		<tr>
+			<td>存款人名称：</td>
+			<td><input id="name" type="text" name="name" value="${customer.name}" /></td>
+		</tr>
+		<tr>
+			<td>存款人身份证：</td>
+			<td><input id="user_id_card" type="text" name="user_id_card" value="${customer.user_id_card}" /></td>
+		</tr>
+		<tr>
+			<td>金算盘编号：</td>
+			<td style="text-align: left;">${customer.jsp_number}</td>
+		</tr>
+		<tr>
+			<td>金算盘名称：</td>
+			<td><input id="jsp_name" type="text" name="jsp_name" value="${customer.jsp_name}" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<a id="submit" href="javascript:;" class="save_btn"><em>确定</em></a>
+				<a id="reset" href="javascript:;" onclick="APP.close(this)" class="clear_btn"><em>取消</em></a>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('#submit').click(function(){
+			var name = $('#name').val();
+			var user_id_card = $('#user_id_card').val();
+			var jsp_name = $('#jsp_name').val();
+			if (name == '') {
+				APP.tips('warn','存款人名称不能为空');
+				return false;
+			}
+			if (user_id_card == '') {
+				APP.tips('warn','存款人身份证不能为空');
+				return false;
+			}
+			if (jsp_name == '') {
+				APP.tips('warn','金算盘名称不能为空');
+				return false;
+			}
+			var data = {number:'${customer.number}',name:name,user_id_card:user_id_card,jsp_name:jsp_name};
+			$.post('@{system.CustomerManage.saveEditCustomer}',data, function(msg){
+				if (msg.error == 1) {
+					APP.tips('success','修改成功！');
+					setTimeout(function(){window.location.reload();},500);
+				} else {
+					APP.tips('error',msg.error);
+				}
+			})
+		})
+		$('#name').keyup(function(){
+			$('#jsp_name').val($(this).val());
+		})
+	})
+</script>

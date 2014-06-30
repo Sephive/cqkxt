@@ -1,0 +1,94 @@
+#{extends '/layout.html' /}
+<!--content-->
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header"> <span>修改取款单</span> </div>
+			<div class="content">
+				<form action="@{ck.InputCKD.save}" method="post" enctype="multipart/form-data" name="form1">
+					<input name="action" type="hidden" value="add" />
+					<table width="100%" border="1" bordercolor="#dfdfdf" cellpadding="0" cellspacing="0" class="table_add">
+						<tr>
+							<td width="101" height="30" class="lefttd">村组名称：</td>
+							<td height="30"><input name="ckd.user_group" type="text" class="input" value=""></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">姓名：</td>
+							<td height="30"><input name="ckd.user_name" type="text" class="input" value=""></td>
+							<td width="101" height="30" class="lefttd">身份证号码：</td>
+							<td height="30"><input name="ckd.user_id_card" type="text" class="input" value=""></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">本金：</td>
+							<td height="30"><input name="ckd.money_basic" type="text" class="input" value=""></td>
+							<td width="101" height="30" class="lefttd">存款种类：</td>
+							<td height="30">
+								<select name="ckd.money_type" id="money_type">
+									#{list items:types, as:'type'}
+									<option value="${type.id}" rate="${type.getCurrRate2()}">${type.name}</option>
+									#{/list}
+								</select>
+							</td>
+							
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">存款时间：</td>
+							<td height="30">
+								<input name="ckd.start_date" type="text" class="input" value="" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" tips="时间不能为空！" />
+							</td>
+							<td width="101" height="30" class="lefttd">到期时间：</td>
+							<td height="30">
+								<input name="ckd.end_date" type="text" class="input" value="" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" tips="时间不能为空！" />
+							</td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">利率：</td>
+							<td height="30">
+								<span id="curr_rate_span"></span>
+								<input id="curr_rate_input" name="ckd.money_rate" type="hidden" class="input" value="">
+							</td>
+							<td width="101" height="30" class="lefttd">备注：</td>
+							<td height="30"><input name="ckd.remark" type="text" class="input" id="num" value=""></td>
+						</tr>
+						<tr>
+							<td width="150" height="30" class="lefttd">代理人姓名：</td>
+							<td height="30"><input name="ckd.agent_name" type="text" class="input"></td>
+							<td width="91" class="lefttd">代理人身份证：</td>
+							<td height="30" colspan="3"><input name="ckd.agent_id_card" type="text" class="input"></td>
+						</tr>
+						<tr>
+							<td width="101" height="30" class="lefttd">操作者：</td>
+							<td height="30">${loginUser.user_name}</td>
+						</tr>
+						<tr>
+							<td class="lefttd" colspan="4" height="50">
+								<a id="submit_btn" href="javascript:;" class="save_btn"><em>提交</em></a>
+								<a id="reset_btn" href="javascript:;" class="clear_btn"><em>取消</em></a>
+							</td>
+						</tr>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	$(function(){
+		function setCurrRate() {
+			var rate = $('#money_type option:selected').attr('rate');
+			$('#curr_rate_input').val(rate);
+			$('#curr_rate_span').html(rate + '%');
+		};
+		$("#submit_btn").click(function(){
+			document.form1.submit();		
+		})
+		$("#reset_btn").click(function(){
+			document.form1.reset();
+			window.location.reload();
+		})
+		$('#money_type').change(function(){
+			setCurrRate();
+		})
+		setCurrRate();
+	})
+	</script>
+</div>

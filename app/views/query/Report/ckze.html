@@ -1,0 +1,21 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>存款总额 </span>
+			</div>
+			<div class="content">
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+					</thead>
+					<tbody>
+						<tr id="list_data">
+							<td style="font-size: 30px; color: red;">${total?.formatCurrency('CNY').raw()}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

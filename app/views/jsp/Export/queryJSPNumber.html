@@ -1,0 +1,65 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>查询金算盘凭证 </span>
+				<span style="font-size: 12px;">存款凭证号：</span>
+				<input id="ckd_id" type="text" name="ckd_id" value="${ckdId}" style="width: 100px;"/>
+				<a id="chaxun" href="javascript:;" class="save_btn"><em>查询</em></a>
+			</div>
+			<div class="content">
+				#{if warn != null}
+					<p>${warn}</p>
+				#{/if}
+				#{else}
+				<table cellspacing="0" cellpadding="0" width="100%" class="data">
+					<thead>
+						<tr>
+							<th width="70">存款凭证编号</th>
+							<th width="70">金算盘凭证编号</th>
+							<th width="60">科目代码</th>
+							<th width="60">原币金额</th>
+							<th width="60">借方金额</th>
+							<th width="60">贷方金额</th>
+							<th width="120">摘要</th>
+							<th width="100">生成日期</th>
+						</tr>
+					</thead>
+					<tbody>
+						#{list items:jvis, as:'jvi'}
+						<tr id="list_data_${jvi.id}">
+							<td>${jvi.ckd_id}</td>
+							<td>${jvi.export_at == null ? "-" : (jvi.export_at.format("yyyyMM") + jvi.c4)}</td>
+							<td>${jvi.c6 == null ? "-" : jvi.c6}</td>
+							<td>${jvi.c9 == null ? "-" : jvi.c9}</td>
+							<td>${jvi.c10 == null ? "-" : jvi.c10}</td>
+							<td>${jvi.c11 == null ? "-" : jvi.c11}</td>
+							<td>${jvi.c5 == null ? "-" : jvi.c5}</td>
+							<td>${jvi.c2 == null ? "-" : jvi.c2}</td>
+						</tr>
+						#{/list}
+					</tbody>
+				</table>
+				#{include '/page.html' /}
+				#{/else}
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	//查询
+	$("#chaxun").click(function(){
+		var ckdId = $('#ckd_id').val();
+		/*
+		if (ckdId == '') {
+			APP.tips('warn', '请输入存款凭证编号');
+			$('#ckd_id').focus();
+			return false;
+		}
+		*/
+		window.location = '/jsp.Export/queryJSPNumber?ckdId=' + $.trim(ckdId);
+	})
+})
+</script>

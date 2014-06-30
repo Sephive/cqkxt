@@ -1,0 +1,51 @@
+<style>
+td {padding-top: 5px;}
+</style>
+<div style="margin: 20px;">
+	<table cellspacing="30" cellpadding="30">
+		<tr>
+			<td>利率(%)：</td>
+			<td><input id="rate" type="text" name="rate" value="${rate.rate}" /></td>
+		</tr>
+		<tr>
+			<td>开始日期：</td>
+			<td><input id="start_date" type="text" name="start_date" value="${rate.start_date?.format('yyyy-MM-dd')}" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+		</tr>
+		<tr>
+			<td>结束日期：</td>
+			<td><input id="end_date" type="text" name="end_date" value="${rate.end_date?.format('yyyy-MM-dd')}" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd'})" /></td>
+		</tr>
+		<tr>
+			<td colspan="2" style="text-align: center;">
+				<a id="submit" href="javascript:;" class="save_btn"><em>确定</em></a>
+				<a id="reset" href="javascript:;" onclick="APP.close(this)" class="clear_btn"><em>取消</em></a>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('#submit').click(function(){
+			var rate = $('#rate').val();
+			var start_date = $('#start_date').val();
+			var end_date = $('#end_date').val();
+			if (rate == '') {
+				APP.tips('warn','利率不能为空');
+				return false;
+			}
+			if (start_date == '') {
+				APP.tips('warn','开始时间不能为空');
+				return false;
+			}
+			var data = {id:'${rate.id}',rate:rate,start_date:start_date,end_date:end_date};
+			$.post('@{system.RateManage.saveEdit}',data, function(msg){
+				if (msg.error == 1) {
+					APP.tips('success','保存成功！');
+					setTimeout(function(){window.location.reload();},500);
+				} else {
+					APP.tips('error',msg.error);
+				}
+			})
+		})
+	})
+</script>

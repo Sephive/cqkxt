@@ -1,0 +1,34 @@
+<style>
+td {padding-top: 5px;}
+</style>
+<div style="margin: 20px; text-align: center;">
+	<table cellspacing="30" cellpadding="30">
+		<tr>
+			<td>锁定原因：</td>
+			<td><textarea id="lock_remark" rows="4" cols="35"></textarea></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<br>
+				<a id="submit" href="javascript:;" class="save_btn"><em>确定</em></a>
+				<a id="reset" href="javascript:;" onclick="APP.close(this)" class="clear_btn"><em>取消</em></a>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('#submit').click(function(){
+			var lock_remark = $('#lock_remark').val();
+			var data = {id:'${id}',lock_remark:lock_remark};
+			$.post('@{ck.ManageCKD.suoding}',data, function(msg){
+				if (msg.error == 1) {
+					APP.tips('success','锁定成功！');
+					setTimeout(function(){window.location.reload();},500);
+				} else {
+					APP.tips('error',msg.error);
+				}
+			})
+		})
+	})
+</script>

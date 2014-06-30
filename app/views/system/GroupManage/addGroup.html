@@ -1,0 +1,70 @@
+<style>
+td {padding-top: 5px;}
+</style>
+<div style="margin: 20px; text-align: center;">
+	<table cellspacing="30" cellpadding="30">
+		<tr>
+			<td>村组编号：</td>
+			<td><input id="number" type="text" name="number" value="" /></td>
+		</tr>
+		<tr>
+			<td>村组名称：</td>
+			<td><input id="name" type="text" name="name" value="" /></td>
+		</tr>
+		<tr>
+			<td>金算盘编号：</td>
+			<td><input id="jsp_number" readonly="readonly" type="text" name="jsp_number" value="" /></td>
+		</tr>
+		<tr>
+			<td>金算盘名称：</td>
+			<td><input id="jsp_name" readonly="readonly" type="text" name="jsp_name" value="" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<a id="submit" href="javascript:;" class="save_btn"><em>确定</em></a>
+				<a id="reset" href="javascript:;" onclick="APP.close(this)" class="clear_btn"><em>取消</em></a>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('#submit').click(function(){
+			var number = $('#number').val();
+			var name = $('#name').val();
+			var jsp_number = $('#jsp_number').val();
+			var jsp_name = $('#jsp_name').val();
+			if (number == '') {
+				APP.tips('warn','村组编号不能为空');
+				return false;
+			}
+			if (name == '') {
+				APP.tips('warn','村组名称不能为空');
+				return false;
+			}
+			if (jsp_number == '') {
+				APP.tips('warn','金算盘编号不能为空');
+				return false;
+			}
+			if (jsp_name == '') {
+				APP.tips('warn','金算盘名称不能为空');
+				return false;
+			}
+			var data = {number:number,name:name,jsp_number:jsp_number,jsp_name:jsp_name};
+			$.post('@{system.GroupManage.saveGroup}',data, function(msg){
+				if (msg.error == 1) {
+					APP.tips('success','添加成功！');
+					setTimeout(function(){window.location.reload();},500);
+				} else {
+					APP.tips('error',msg.error);
+				}
+			})
+		})
+		$('#number').keyup(function(){
+			$('#jsp_number').val($(this).val());
+		})
+		$('#name').keyup(function(){
+			$('#jsp_name').val($(this).val());
+		})
+	})
+</script>

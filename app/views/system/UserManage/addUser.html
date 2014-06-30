@@ -1,0 +1,55 @@
+<style>
+td {padding-top: 5px;}
+</style>
+<div style="margin: 20px; text-align: center;">
+	<table cellspacing="30" cellpadding="30">
+		<tr>
+			<td>姓名：</td>
+			<td><input id="user_name" type="text" name="user_name" value="" /></td>
+		</tr>
+		<tr>
+			<td>登录名称：</td>
+			<td><input id="login_name" type="text" name="login_name" value="" /></td>
+		</tr>
+		<tr>
+			<td>登录密码：</td>
+			<td><input id="login_pass" type="text" name="login_pass" value="" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<a id="submit" href="javascript:;" class="save_btn"><em>确定</em></a>
+				<a id="reset" href="javascript:;" onclick="APP.close(this)" class="clear_btn"><em>取消</em></a>
+			</td>
+		</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('#submit').click(function(){
+			var user_name = $('#user_name').val();
+			var login_name = $('#login_name').val();
+			var login_pass = $('#login_pass').val();
+			if (user_name == '') {
+				APP.tips('warn','用户名不能为空');
+				return false;
+			}
+			if (login_name == '') {
+				APP.tips('warn','登录名称不能为空');
+				return false;
+			}
+			if (login_pass == '') {
+				APP.tips('warn','登录密码不能为空');
+				return false;
+			}
+			var data = {user_name:user_name,login_name:login_name,login_pass:login_pass};
+			$.post('@{system.UserManage.saveUser}',data, function(msg){
+				if (msg.error == 1) {
+					APP.tips('success','添加成功！');
+					setTimeout(function(){window.location.reload();},500);
+				} else {
+					APP.tips('error',msg.error);
+				}
+			})
+		})
+	})
+</script>

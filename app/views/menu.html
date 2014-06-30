@@ -1,0 +1,14 @@
+<div id="left_menu">
+	<ul id="main_menu">
+		<li><a href="/"><img alt="Home" src="@{'/public/images/icon_home.png'}" />Home</a></li>
+		#{list items:menu_1, as:'menu1'}
+		<li> <a href="javascript:;"><img alt="${menu1.name}" src="${menu1.icon}" />${menu1.name}</a>
+			<ul>
+				#{list items:menu_2.get(menu1.id), as:'menu2'}
+				<li><a href="${menu2.url}">${menu2.name}</a></li>
+				#{/list}
+			</ul>
+		</li>
+		#{/list}
+	</ul>
+</div>

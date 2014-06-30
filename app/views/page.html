@@ -1,0 +1,64 @@
+<div class="pagination">
+    %{
+   		totalPage = count.page(pageSize)
+   		pageUrl = pageUrl == null ? "?" : (pageUrl.contains('?') ? (pageUrl + "&") : (pageUrl + "?"))
+    }%
+    
+    #{if totalPage > 1}
+    %{
+	    offset = (int)(pageSize/2)
+	    prev = page - 1
+	    next = page + 1
+		if(page > totalPage) page = totalPage
+	    start = page - offset
+	    end = page + offset
+	    if(end > totalPage) end = totalPage
+    }%
+
+    #{if prev < 1}
+    <span>上一页</span>
+    #{/if}
+    #{else}
+    <a href="${pageUrl}page=${prev}" target="_self">上一页</a>
+    #{/else}
+	
+    #{if page != 1}
+    <a href="${pageUrl}page=1" target="_self">1</a>
+    #{/if}
+
+
+    #{if page >= pageSize }
+    ...
+    #{/if}
+
+    %{ for (i in start..end) {
+    if(i > 0) {
+    }%
+    #{if page == i}
+    <span class="cur">${i}</span>
+    #{/if}
+    #{elseif (i != 1 && i != totalPage)}
+    <a href="${pageUrl}page=${i}" target="_self">${i}</a>
+    #{/elseif}
+
+    %{ } } }%
+
+    #{if (page + offset + 1) < totalPage}
+    ...
+    #{/if}
+
+    #{if page != totalPage}
+    <a href="${pageUrl}page=${totalPage}" target="_self">${totalPage}</a>
+    #{/if}
+
+    #{if next > totalPage}
+    <span>下一页</span>
+    #{/if}
+    #{else}
+    <a href="${pageUrl}page=${page+1}" target="_self">下一页</a>
+    #{/else}
+
+	<span>共${totalPage}页${count}条记录</span>
+    #{/if}
+    
+</div>

@@ -1,0 +1,24 @@
+#{extends '/layout.html' /}
+<script type="text/javascript">
+$(function(){
+	openwindow('@{Print.qkd(qkd.id)}','凭证打印',700,450,'no','no','no','no','no','no');
+})
+</script>
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="content">
+			<p style="font-size: 16px;">
+				取款成功! #{if qkd.out_type==4 || qkd.out_type==5}原存单#{if qkd.out_type==4}剩余#{/if}本金：<span style="color: red;">${ckd2?.money_basic?.format(',000')}</span> 元，已转存，请审核! 新存单编号为：<span style="color: red;">${ckd2?.id}</span>#{/if}
+				#{if qkd.out_type==6}原存单本息：<span style="color: red;">${qkd?.out_hj?.format(',000')}</span> 元，已转存，请审核! 新存单编号为：<span style="color: red;">${ckd2?.id}</span>#{/if}
+				#{if qkd.out_type==4 || qkd.out_type==5 || qkd.out_type==6}
+				<br><br><br>
+				<a href="/ck.ManageCKD/list?status=0"><<审核存单</a>
+				#{/if}
+				<br><br><br>
+				<a href="/"><<返回首页</a>
+			</p>
+			</div>
+		</div>
+	</div>
+</div>

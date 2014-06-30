@@ -1,0 +1,67 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>存款单打印</span>
+			</div>
+			<div class="content">
+				<table width="100%" border="1" bordercolor="#dfdfdf" cellpadding="0" cellspacing="0" class="table_add">
+					<tr>
+						<td width="101" height="30" class="lefttd">村组名称：</td>
+						<td height="30">${ckd.user_group}</td>
+						<td width="101" height="30" class="lefttd">姓名：</td>
+						<td height="30">${ckd.user_name}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">身份证号码：</td>
+						<td height="30">${ckd.user_id_card}</td>
+						<td width="101" height="30" class="lefttd">本金：</td>
+						<td height="30">${ckd.money_basic}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">存款种类：</td>
+						<td height="30">${ckd.type?.name}</td>
+						<td width="101" height="30" class="lefttd">利息标准：</td>
+						<td height="30">${ckd.money_rate}%</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">存款日期：</td>
+						<td height="30">${ckd.start_date?.format("yyyy-MM-dd")}</td>
+						<td width="101" height="30" class="lefttd">到期日期：</td>
+						<td height="30">${ckd.end_date == null ? "-" : ckd.end_date?.format("yyyy-MM-dd")}</td>
+					</tr>
+					<tr>
+						<td width="150" height="30" class="lefttd">代理人姓名：</td>
+						<td height="30">${ckd.agent_name}</td>
+						<td width="91" class="lefttd">代理人身份证：</td>
+						<td height="30">${ckd.agent_id_card}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">备注：</td>
+						<td height="30" colspan="3">${ckd.remark}</td>
+					</tr>
+					<tr>
+						<td width="101" height="30" class="lefttd">处理人：</td>
+						<td height="30" >${ckd.operator_name}</td>
+						<td width="101" height="30" class="lefttd">处理时间：</td>
+						<td height="30">${ckd.operator_time?.format("yyyy-MM-dd HH:mm:ss")}</td>
+					</tr>
+					<tr>
+						<td class="lefttd" colspan="4" height="50">
+							<a id="print_btn" href="javascript:;" class="save_btn"><em>打印</em></a>
+							<a id="submit_btn" href="javascript:;" class="save_btn"><em>返回</em></a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	$("#submit_btn").click(function(){
+		history.go(-1);	
+	})
+})
+</script>

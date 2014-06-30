@@ -1,0 +1,133 @@
+#{extends '/layout.html' /}
+<div id="content">
+	<div class="inner">
+		<div class="onecolumn">
+			<div class="header">
+				<span>用户权限管理</span>
+			</div>
+			<div class="content">
+				<div>
+					<span>选择用户姓名：</span>
+					<select id="user_name" style="width: 200px;">
+						#{list items:users, as:'user'}
+						<option value="${user.id}" login_name="${user.login_name}" #{if selectUser?.id?.equals(user.id)}selected="selected"#{/if}>${user.user_name}</option>
+						#{/list}
+					</select>
+					<span style="margin-left: 50px;">用户登录名：</span>
+					<span id="login_name"></span>
+					<hr style="color: #eeeeee; margin-top: 30px;">
+				</div>
+				<div style="margin-top: 20px;">
+					<div style="width: 400px; float: left;">
+						<span>选择菜单权限：</span>
+						<select id="select_menu_auth" style="width: 150px;">
+							#{list items:menus2, as:'menu'}
+							<option value="${menu.id}">${menu.name}</option>
+							#{/list}
+						</select>
+						<a id="add_menu_auth" href="javascript:;" class="clear_btn"><em>增加</em></a>
+						<div style="width: 400px; height:250px; overflow-y:scroll;">
+							<table cellspacing="0" cellpadding="0" width="100%" class="data" style="margin-top: 10px;">
+								<thead>
+									<tr>
+										<th width="40">序号</th>
+										<th width="70">菜单权限</th>
+										<th width="40">操作</th>
+									</tr>
+								</thead>
+								<tbody>
+									#{list items:selectUser.menus, as:'selectMenu'}
+									<tr id="list_data_${selectMenu.id}">
+										<td>${selectMenu_index}</td>
+										<td>${selectMenu.name}</td>
+										<td><a href="javascript:;" onclick="del_menu(${selectMenu.id});">删除</a></td>
+									</tr>
+									#{/list}
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div style="width: 400px; margin-left: 500px;">
+						<span>选择操作权限：</span>
+						<select id="select_user_auth" style="width: 150px;">
+							#{list items:auths, as:'auth'}
+							<option value="${auth.id}">${auth.auth_name}</option>
+							#{/list}
+						</select>
+						<a id="add_user_auth" href="javascript:;" class="clear_btn"><em>增加</em></a>
+						<table cellspacing="0" cellpadding="0" width="100%" class="data" style="margin-top: 10px;">
+							<thead>
+								<tr>
+									<th width="40">序号</th>
+									<th width="70">操作权限</th>
+									<th width="40">操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								#{list items:selectUser.auths, as:'selectAuth'}
+								<tr id="list_data_${selectAuth.id}">
+									<td>${selectAuth_index}</td>
+									<td>${selectAuth.auth_name}</td>
+									<td><a href="javascript:;" onclick="del_auth(${selectAuth.id});">删除</a></td>
+								</tr>
+								#{/list}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(function(){
+	function setLoginName() {
+		var login_name = $('#user_name option:selected').attr('login_name');
+		$('#login_name').html(login_name);
+	};
+	setLoginName();
+	$('#user_name').change(function(){
+		setLoginName();
+	});
+	$('#user_name').change(function(){
+		var id = $(this).val();
+		window.location = '@{system.UserAuthManage.list}' + '?id=' + id;
+	})
+	$('#add_menu_auth').click(function(){
+		var menu_id = $('#select_menu_auth').val();
+		$.post('@{system.UserAuthManage.addMenu}', {user_id:'${selectUser.id}', menu_id:menu_id}, function(msg){
+			if (msg.error == 1) {
+				APP.tips('success', '添加成功！');
+				setTimeout(function(){window.location.reload();},500);
+			}
+		})
+	})
+	$('#add_user_auth').click(function(){
+		var auth_id = $('#select_user_auth').val();
+		$.post('@{system.UserAuthManage.addAuth}', {user_id:'${selectUser.id}', auth_id:auth_id}, function(msg){
+			if (msg.error == 1) {
+				APP.tips('success', '添加成功！');
+				setTimeout(function(){window.location.reload();},500);
+			} else {
+				APP.tips('warn', msg.error);
+			}
+		})
+	})
+})
+function del_menu(menu_id){
+	$.post('@{system.UserAuthManage.delMenu}', {user_id:'${selectUser.id}', menu_id:menu_id}, function(msg){
+		if (msg.error == 1) {
+			APP.tips('success', '删除成功！');
+			setTimeout(function(){window.location.reload();},500);
+		}
+	})
+}
+function del_auth(auth_id){
+	$.post('@{system.UserAuthManage.delAuth}', {user_id:'${selectUser.id}', auth_id:auth_id}, function(msg){
+		if (msg.error == 1) {
+			APP.tips('success', '删除成功！');
+			setTimeout(function(){window.location.reload();},500);
+		}
+	})
+}
+</script>
